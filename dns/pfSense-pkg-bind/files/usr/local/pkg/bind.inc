@@ -639,7 +639,7 @@ EOD;
 								if ($key_restored > 0) {
 									log_error("[bind] {$key_restored} DNSSEC keys restored from XML backup for {$zonename} zone.");
 								}
-								$dnssec_bin = "/usr/local/sbin/dnssec-keygen";
+								$dnssec_bin = "/usr/local/bin/dnssec-keygen";
 								$z = reverse_zonename($zonename, $zonereverso, $zonereversv6o);
 								if (file_exists($dnssec_bin) && $key_restored == 0) {
 									exec("{$dnssec_bin} -a ECDSAP256SHA256 -K " . CHROOT_LOCALBASE . "/etc/namedb/keys {$z}", $kout);
@@ -652,7 +652,7 @@ EOD;
 								}
 							}
 							// Get DS keys
-							$dsfromkey = "/usr/local/sbin/dnssec-dsfromkey";
+							$dsfromkey = "/usr/local/bin/dnssec-dsfromkey";
 							foreach (glob(CHROOT_LOCALBASE."/etc/namedb/keys/K{$zonename}*key", GLOB_NOSORT) as $filename) {
 								$zone_key = file_get_contents($filename);
 								if (preg_match("/IN DNSKEY 257 /", $zone_key) && file_exists($dsfromkey)) {
