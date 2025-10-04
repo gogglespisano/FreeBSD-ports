@@ -1,11 +1,11 @@
---- components/device_signals/core/common/signals_features.cc.orig	2023-08-28 20:17:35 UTC
+--- components/device_signals/core/common/signals_features.cc.orig	2025-09-11 13:19:19 UTC
 +++ components/device_signals/core/common/signals_features.cc
-@@ -46,7 +46,7 @@ bool IsNewFunctionEnabled(NewEvFunction new_ev_functio
+@@ -55,7 +55,7 @@ bool IsDetectedAgentSignalCollectionEnabled() {
  }
  
  #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || \
--    BUILDFLAG(IS_CHROMEOS_ASH)
-+    BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_BSD)
+-    BUILDFLAG(IS_CHROMEOS)
++    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_BSD)
  // Enables the triggering of device signals consent dialog when conditions met
  // This feature also requires UnmanagedDeviceSignalsConsentFlowEnabled policy to
  // be enabled

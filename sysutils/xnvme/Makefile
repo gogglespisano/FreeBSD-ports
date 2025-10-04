@@ -1,7 +1,7 @@
 PORTNAME=	xnvme
-DISTVERSION=	0.7.3
+DISTVERSION=	0.7.5
 CATEGORIES=	sysutils
-MASTER_SITES=	https://github.com/OpenMPDK/xNVMe/releases/download/v${DISTVERSION}/
+MASTER_SITES=	https://github.com/xnvme/xnvme/releases/download/v${DISTVERSION}/
 
 MAINTAINER=	k.torp@samsung.com
 COMMENT=	Cross-platform libraries and tools for NVMe devices
@@ -9,18 +9,18 @@ WWW=		https://xnvme.io/
 
 LICENSE=	BSD3CLAUSE
 
-NOT_FOR_ARCHS=	armv7 i386
+NOT_FOR_ARCHS=	armv7 i386 powerpc
 NOT_FOR_ARCHS_REASON=	use of types with platform-specific length
-BROKEN_FreeBSD_12=	no member named 'aio_iov' in 'struct aiocb'
 
 USES=		meson
 USE_LDCONFIG=	yes
 
 MESON_ARGS=	-Dforce_completions=true \
+		-Dwith-isal=disabled \
 		-Dwith-libaio=disabled \
 		-Dwith-liburing=disabled \
 		-Dwith-libvfn=disabled \
-		-Dwith-spdk=false
+		-Dwith-spdk=disabled
 
 OPTIONS_DEFINE=		EXAMPLES TESTS TOOLS
 OPTIONS_DEFAULT=	TOOLS

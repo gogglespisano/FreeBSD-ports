@@ -1,12 +1,15 @@
 PORTNAME=	containernetworking-plugins
-DISTVERSION=	0.5
+DISTVERSIONPREFIX=	freebsd-v
+DISTVERSION=	0.6
+PORTREVISION=	3
 CATEGORIES=	net
 
 MAINTAINER=	dfr@FreeBSD.org
 COMMENT=	Networking plugins for container networking support
 WWW=		https://www.cni.dev/
 
-LICENSE=	GPLv2
+LICENSE=	APACHE20
+LICENSE_FILE=	${WRKSRC}/LICENSE
 
 USES=		go:no_targets
 BUILD_DEPENDS=	bash:shells/bash
@@ -14,7 +17,6 @@ BUILD_DEPENDS=	bash:shells/bash
 USE_GITHUB=	yes
 GH_ACCOUNT=	dfr
 GH_PROJECT=	plugins
-GH_TAGNAME=	freebsd-v${DISTVERSION}
 GH_TUPLE=	golang:sys:v0.6.0:sys
 
 pre-patch:

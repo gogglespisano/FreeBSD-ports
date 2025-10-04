@@ -1,8 +1,12 @@
 PORTNAME=	libpoly
 DISTVERSIONPREFIX=	v
 DISTVERSION=	0.1.13
+PORTREVISION=	1
 CATEGORIES=	math
 PKGNAMEPREFIX=	${PYTHON_PKGNAMEPREFIX}
+
+PATCH_SITES=	https://github.com/SRI-CSL/libpoly/commit/
+PATCHFILES=	48f48f945111ab021bed4ad4f192f2cac0c2e84b.patch:-p1
 
 MAINTAINER=	yuri@FreeBSD.org
 COMMENT=	Python binding for libpoly
@@ -10,8 +14,6 @@ WWW=		https://github.com/SRI-CSL/libpoly
 
 LICENSE=	GPLv3
 LICENSE_FILE=	${WRKSRC}/LICENCE
-
-BROKEN_i386=	compilation fails with error: incompatible function pointer types, see https://github.com/SRI-CSL/libpoly/issues/70
 
 LIB_DEPENDS=	libpoly.so:math/libpoly
 

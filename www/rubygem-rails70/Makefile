@@ -1,6 +1,5 @@
 PORTNAME=	rails
-PORTVERSION=	7.0.8
-PORTREVISION=	1
+PORTVERSION=	7.0.8.7
 CATEGORIES=	www rubygems
 MASTER_SITES=	RG
 PKGNAMESUFFIX=	70
@@ -11,6 +10,7 @@ WWW=		https://rubyonrails.org/ \
 		https://github.com/rails/rails
 
 LICENSE=	MIT
+LICENSE_FILE=	${WRKSRC}/MIT-LICENSE
 
 RUN_DEPENDS=	rubygem-actioncable70>=${PORTVERSION}<${PORTVERSION}_99:www/rubygem-actioncable70 \
 		rubygem-actionmailbox70>=${PORTVERSION}<${PORTVERSION}_99:mail/rubygem-actionmailbox70 \
@@ -48,7 +48,7 @@ RUN_DEPENDS=	rubygem-actioncable70>=${PORTVERSION}<${PORTVERSION}_99:www/rubygem
 		rubygem-rexml>=0:textproc/rubygem-rexml \
 		rubygem-selenium-webdriver>=4.11.0:www/rubygem-selenium-webdriver \
 		rubygem-sprockets-rails-rails70>=2.0.0:devel/rubygem-sprockets-rails-rails70 \
-		rubygem-sqlite3>=1.4<2:databases/rubygem-sqlite3 \
+		rubygem-sqlite3>=1.4:databases/rubygem-sqlite3 \
 		rubygem-stimulus-rails-rails70>=0:www/rubygem-stimulus-rails-rails70 \
 		rubygem-sucker_punch>=0:devel/rubygem-sucker_punch \
 		rubygem-tailwindcss-rails-rails70>=0:www/rubygem-tailwindcss-rails-rails70 \

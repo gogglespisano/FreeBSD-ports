@@ -1,7 +1,6 @@
 PORTNAME=	opensmtpd
-PORTVERSION=	7.3.0
-PORTREVISION=	2
-DISTVERSIONSUFFIX=	p2
+PORTVERSION=	7.6.0
+DISTVERSIONSUFFIX=	p1
 PORTEPOCH=	1
 CATEGORIES=	mail
 MASTER_SITES=	https://www.opensmtpd.org/archives/
@@ -24,6 +23,7 @@ TABLE_DB_DESC=		Build table-db plugin (aliases)
 
 USES=		cpe groff libtool localbase ssl
 GNU_CONFIGURE=	yes
+GNU_CONFIGURE_MANPREFIX=${PREFIX}/share
 
 CPE_VENDOR=	openbsd
 

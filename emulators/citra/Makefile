@@ -1,6 +1,6 @@
 PORTNAME=	citra
 PORTVERSION=	s20220902
-PORTREVISION?=	3
+PORTREVISION?=	4
 CATEGORIES=	emulators
 .if make(makesum)
 MASTER_SITES=	https://api.citra-emu.org/gamedb/?dummy=/:gamedb
@@ -25,6 +25,8 @@ LICENSE_FILE_LGPL21+ =	${_LICENSE_STORE}/LGPL21 # soundtouch
 LICENSE_FILE_MIT=	${WRKSRC}/externals/enet/LICENSE
 LICENSE_FILE_OpenSSL=	${WRKSRC}/externals/libressl/COPYING
 
+DEPRECATED=	project has been discontinued and build fails with FFmpeg >7
+EXPIRATION_DATE=	2025-10-31
 BROKEN_aarch64=	https://github.com/citra-emu/citra/issues/5921
 
 BUILD_DEPENDS=	boost-libs>0:devel/boost-libs
@@ -95,18 +97,16 @@ QT5_PLIST_FILES=bin/${PORTNAME}-qt \
 .include <bsd.port.pre.mk>
 
 post-patch:
-	@${REINPLACE_CMD} -e '/check_submodules_present()/d' \
-		${WRKSRC}/CMakeLists.txt
 	@${REINPLACE_CMD} -e 's/@GIT_BRANCH@/master/' \
 		-e 's/@GIT_DESC@/${GH_TAGNAME}/' \
 		${WRKSRC}/src/common/scm_rev.cpp.in
-.if ${COMPILER_TYPE} == clang && ${COMPILER_VERSION} >= 160
+.if ${COMPILER_TYPE} == clang
 	@${REINPLACE_CMD} -e 's|std::unary_function|std::__unary_function|' \
 		${WRKSRC}/externals/boost/boost/container_hash/hash.hpp
 .endif
 
 post-configure:
-	@${CP} ${DISTFILES:M*\:gamedb:C/\:.*//:S,^,${_DISTDIR},} \
+	@${CP} ${DISTFILES:M*\:gamedb:C/\:.*//:S,^,${DISTDIR}/,} \
 		${BUILD_WRKSRC}/dist/compatibility_list/
 
 .include <bsd.port.post.mk>

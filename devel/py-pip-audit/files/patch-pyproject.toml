@@ -1,13 +1,14 @@
-Obtained from:	https://github.com/pypa/pip-audit/commit/20e7beece90b117687978205073435f8a54866cc
+Obtained from:	https://github.com/pypa/pip-audit/commit/fe414d39fedce53f44b91bd3f89d152689141f0c
+		https://github.com/pypa/pip-audit/commit/3360a3da3fdd5104e99a737de9b509b8e28dbad9
 
---- pyproject.toml.orig	2023-07-24 18:47:23 UTC
+--- pyproject.toml.orig	2025-04-07 16:45:09 UTC
 +++ pyproject.toml
-@@ -30,7 +30,7 @@ dependencies = [
+@@ -28,7 +28,7 @@ dependencies = [
+ ]
+ dependencies = [
      "CacheControl[filecache] >= 0.13.0",
-     # NOTE(ww): Release 2.5.0 is broken, subsequent 2.5.x releases fix it.
-     # See: https://github.com/CycloneDX/cyclonedx-python-lib/issues/245
--    "cyclonedx-python-lib ~= 4.0",
-+    "cyclonedx-python-lib >= 4,< 6",
-     "html5lib>=1.1",
-     "packaging>=23.0.0",               # https://github.com/pypa/pip-audit/issues/464
+-    "cyclonedx-python-lib >= 5,< 10",
++    "cyclonedx-python-lib >= 5,< 12",
+     "packaging>=23.0.0",                 # https://github.com/pypa/pip-audit/issues/464
      "pip-api>=0.0.28",
+     "pip-requirements-parser>=32.0.0",

@@ -1,6 +1,6 @@
 PORTNAME=	lfortran
 DISTVERSIONPREFIX=	v
-DISTVERSION=	0.29.0
+DISTVERSION=	0.56.0
 CATEGORIES=	lang
 
 MAINTAINER=	fortran@FreeBSD.org
@@ -14,27 +14,29 @@ BROKEN_i386=	sizeof(YYSTYPE) != sizeof(Vec<AST::ast_t*>)
 BUILD_DEPENDS=	bash:shells/bash		\
 		re2c>0:devel/re2c		\
 		dwarfdump:devel/dwarfdump	\
+		pandoc:textproc/hs-pandoc	\
 		rapidjson>0:devel/rapidjson
 LIB_DEPENDS=	libfmt.so:devel/libfmt	\
 		libzstd.so:archivers/zstd	\
 		libunwind.so:devel/libunwind	\
-		libLLVM-${LLVM_VERSION}.so:devel/llvm${LLVM_VERSION}
+		libkokkoscore.so:devel/kokkos
 RUN_DEPENDS=	dwarfdump:devel/dwarfdump
 
 USE_GITHUB=	yes
 
-USES=		bison cmake:testing compiler:c++17-lang pkgconfig	\
+USES=		bison cmake:testing compiler:c++17-lang llvm:20,lib pkgconfig	\
 		python:build ssl shebangfix
-SHEBANG_FILES=	*.sh
+SHEBANG_GLOB=	*.py *.sh
 BINARY_ALIAS=	python=${PYTHON_CMD}
 CMAKE_ON=	LFORTRAN_BUILD_ALL WITH_DWARFDUMP WITH_FMT WITH_JSON	\
-		WITH_LINKH WITH_LLVM WITH_STACKTRACE WITH_UNWIND
+		WITH_KOKKOS WITH_LINKH WITH_LLVM WITH_LLVM_STACKTRACE	\
+		WITH_MLIR WITH_STACKTRACE WITH_UNWIND
+CMAKE_ARGS=	-DLLVM_INSTALL_DIR:PATH="${LOCALBASE}/llvm${LLVM_VERSION}"	\
+		-DMLIR_DIR:PATH="${LOCALBASE}/llvm${LLVM_VERSION}/lib/cmake/mlir"	\
+		-DCMAKE_PREFIX_PATH:PATH="${LOCALBASE}/llvm${LLVM_VERSION};${CMAKE_PREFIX_PATH}"
 USE_LDCONFIG=	yes
 
-CXXFLAGS+=	${CXXFLAGS_${OPSYS}_${OSREL:R}}
-CXXFLAGS_FreeBSD_12=	-D_GNU_SOURCE
-
-LLVM_VERSION=	15	# 16 is supported too
+LLVM_VERSION=	20
 
 OPTIONS_DEFINE=	EXAMPLES # NB
 # NB is broken ATM
@@ -49,16 +51,17 @@ NB_BUILD_DEPENDS=	sphinx-build:textproc/py-sphinx@${PY_FLAVOR}	\
 
 PORTEXAMPLES=	*
 
-# Xeus: version 3.0.5 is required and xeus-zmq 1.0.2
+# Xeus: version 5.1.0 is required and xeus-zmq 3.0.0
 # + xtl-quant-stack + cppzmq + nlohmann_json + LibUUID + libzmq4
-BUILD_DEPENDS+=	xtl-quant-stack>=0.7:devel/xtl-quant-stack	\
-		nlohmann-json>0:devel/nlohmann-json	\
-		cppzmq>=4.8.1:net/cppzmq
-LIB_DEPENDS+=	libxeus.so:devel/xeus	\
-		libzmq.so:net/libzmq4	\
-		libxeus-zmq.so:devel/xeus-zmq	\
-		libuuid.so:misc/e2fsprogs-libuuid
-CMAKE_ON+=	WITH_XEUS
+# See https://github.com/lfortran/lfortran/issues/1255
+#BUILD_DEPENDS+=	xtl-quant-stack>=0.7:devel/xtl-quant-stack	\
+#		nlohmann-json>0:devel/nlohmann-json	\
+#		cppzmq>=4.8.1:net/cppzmq
+#LIB_DEPENDS+=	libxeus.so:devel/xeus	\
+#		libzmq.so:net/libzmq4	\
+#		libxeus-zmq.so:devel/xeus-zmq	\
+#		libuuid.so:misc/libuuid
+CMAKE_OFF+=	WITH_XEUS
 
 # BFD:
 USE_BINUTILS=	yes

@@ -1,10 +1,10 @@
 PORTNAME=	mepo
-DISTVERSION=	1.1.2
+DISTVERSION=	1.3.4
 PORTREVISION=	1
 CATEGORIES=	astro geography wayland
 MASTER_SITES=	https://git.sr.ht/~mil/${PORTNAME}/archive/${DISTVERSIONFULL}${EXTRACT_SUFX}?dummy=/
 
-MAINTAINER=	jbeich@FreeBSD.org
+MAINTAINER=	ports@FreeBSD.org
 COMMENT=	Fast, simple, and hackable OSM map viewer
 WWW=		https://sr.ht/~mil/Mepo/
 
@@ -12,7 +12,7 @@ LICENSE=	GPLv3+ OFL11
 LICENSE_COMB=	multi
 LICENSE_FILE=	${WRKSRC}/LICENSE
 
-BUILD_DEPENDS=	zig>=0.10.0:lang/zig
+BUILD_DEPENDS=	zig>=0.14.0:lang/zig
 LIB_DEPENDS=	libcurl.so:ftp/curl
 RUN_DEPENDS=	jq:textproc/jq
 
@@ -23,13 +23,10 @@ SHEBANG_LANG=	sh
 sh_CMD=		/bin/sh
 MAKE_ENV=	DESTDIR="${STAGEDIR}"
 CONFIGURE_ARGS=	--prefix "${PREFIX}" \
-		${WITH_DEBUG:D:U-Drelease-fast} \
+		${WITH_DEBUG:D:U-Doptimize=ReleaseFast} \
 		-Dcpu=${CPUTYPE:Ubaseline} \
 		--verbose
 NO_INSTALL=	yes # strip(1) breaks runtime
-
-# https://github.com/ziglang/zig/issues/12170 (SDL2, curl)
-MAKE_ENV+=	PKG_CONFIG_SYSTEM_LIBRARY_PATH="${LOCALBASE}/lib"
 
 post-patch:
 	@${REINPLACE_CMD} -e 's,/usr,${LOCALBASE},' \
@@ -40,10 +37,6 @@ post-patch:
 
 do-build:
 	@(cd ${WRKSRC} && ${MAKE_ENV} zig build ${CONFIGURE_ARGS})
-
-post-install:
-	@${STAGEDIR}${PREFIX}/bin/${PORTNAME} -docman \
-		>${STAGEDIR}${PREFIX}/share/man/man1/${PORTNAME}.1
 
 do-test:
 	@(cd ${WRKSRC} && ${TEST_ENV} zig build test ${CONFIGURE_ARGS})

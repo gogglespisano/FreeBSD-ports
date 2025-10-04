@@ -95,6 +95,12 @@ if ($_POST) {
 		$input_errors[] = gettext("Invalid interface action");
 	}
 
+	/* Avoid conflict with mdns-bridge */
+	if ($pconfig['enable'] && $pconfig['reflection'] && 
+		config_get_path('installedpackages/mdns-bridge/enable', false)) {
+		$input_errors[] = gettext("mDNS Bridge must be disabled before enabling Avahi reflection");
+	}
+
 	$filter = array();
 	for ($x = 0; $x < 99; $x++) {
 		if (!empty($_POST["destination{$x}"])) {
@@ -266,7 +272,7 @@ foreach ($pconfig['filtering']['rule'] as $rule) {
 		'deleterow' . $counter,
 		'Delete',
 		null,
-		'fa-trash'
+		'fa-solid fa-trash-can'
 	))->addClass('btn-warning');
 
 	$section->add($group);
@@ -278,7 +284,7 @@ $section->addInput(new Form_Button(
 	'addrow',
 	'Add',
 	null,
-	'fa-plus'
+	'fa-solid fa-plus'
 ))->addClass('btn-success');
 
 $form->add($section);
@@ -338,7 +344,7 @@ $button = new Form_Button(
 	'advancedbutton',
 	'Display Advanced',
 	null,
-	'fa-cog'
+	'fa-solid fa-cog'
 );
 $button->setAttribute('type', 'button')->addClass('btn-info btn-sm');
 $section->addInput(new Form_StaticText(
@@ -437,7 +443,7 @@ events.push(function() {
 		} else {
 			text = "<?=gettext('Display Advanced');?>";
 		}
-		$('#advancedbutton').html('<i class="fa fa-cog"></i> ' + text);
+		$('#advancedbutton').html('<i class="fa-solid fa-cog"></i> ' + text);
 	}
 
 	function show_filtering() {

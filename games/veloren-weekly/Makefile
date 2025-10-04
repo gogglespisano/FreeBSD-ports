@@ -1,5 +1,5 @@
 PORTNAME=	veloren
-PORTVERSION=	s20231123
+PORTVERSION=	s20250924
 CATEGORIES=	games wayland
 PKGNAMESUFFIX=	-weekly
 
@@ -10,20 +10,21 @@ WWW=		https://veloren.net/
 LICENSE=	GPLv3
 LICENSE_FILE=	${WRKSRC}/LICENSE
 
-BROKEN_aarch64=	https://github.com/rust-lang/libc/issues/3217
-ONLY_FOR_ARCHS=	aarch64 amd64 i386
+ONLY_FOR_ARCHS=	aarch64 amd64
 ONLY_FOR_ARCHS_REASON=	unsupported platform by https://github.com/wasmerio/wasmer
 
-LIB_DEPENDS=	libasound.so:audio/alsa-lib \
+LIB_DEPENDS=	libzstd.so:archivers/zstd \
+		libasound.so:audio/alsa-lib \
 		libudev.so:devel/libudev-devd \
-		libshaderc_shared.so:graphics/shaderc
+		libshaderc_shared.so:graphics/shaderc \
+		libxkbcommon-x11.so:x11/libxkbcommon
 RUN_DEPENDS=	${LOCALBASE}/lib/alsa-lib/libasound_module_pcm_oss.so:audio/alsa-plugins \
 		${LOCALBASE}/lib/libvulkan.so:graphics/vulkan-loader
 
 USES=		cargo xorg
 USE_XORG=	xcb
 USE_GITLAB=	yes
-GL_TAGNAME=	v0.15.0-635-gb1a7c71f2 # git describe --match='v[0-9]*' weekly
+GL_TAGNAME=	v0.17.0-1227-gbb56ecab89 # git describe --match='v[0-9]*' weekly
 CARGO_ENV=	VELOREN_USERDATA_STRATEGY=system SHADERC_LIB_DIR="${LOCALBASE}/lib"
 PLIST_FILES=	bin/${PORTNAME}-server-cli \
 		bin/${PORTNAME}-voxygen \
@@ -34,12 +35,8 @@ PORTDATA=	*
 
 CONFLICTS_INSTALL=	${PORTNAME}
 
-.if ${MACHINE_ARCH} == i386
-# https://github.com/rust-lang/rust/issues/85598
-CARGO_ENV+=	CARGO_PROFILE_RELEASE_LTO=false
-.endif
 # Fixes error "Instruction does not dominate all uses!"
-LTO_UNSAFE=	yes
+WITHOUT_LTO=	yes # XXX bug 277333
 
 # https://gitlab.com/veloren/veloren/issues/264
 CARGO_ENV+=		RUSTC_BOOTSTRAP=1
@@ -62,12 +59,11 @@ post-patch:
 do-install:
 # XXX [workspace.dependencies] breaks rebuild in subdirs
 .for f in ${CARGO_INSTALL_PATH}
-	${INSTALL_PROGRAM} ${CARGO_TARGET_DIR}/*/*/${PORTNAME}-$f \
+	${INSTALL_PROGRAM} ${CARGO_TARGET_DIR}/*/${PORTNAME}-$f \
 		${STAGEDIR}${PREFIX}/bin
 .endfor
 
 post-install:
-	${STRIP_CMD} ${STAGEDIR}${PREFIX}/bin/*
 	(cd ${WRKSRC} && ${COPYTREE_SHARE} assets ${STAGEDIR}${DATADIR})
 	${RLN} ${STAGEDIR}${DATADIR}/assets/voxygen/*.desktop \
 		${STAGEDIR}${PREFIX}/share/applications

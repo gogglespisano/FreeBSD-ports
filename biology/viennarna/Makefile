@@ -1,19 +1,22 @@
 PORTNAME=	viennarna
-DISTVERSION=	2.6.4
+DISTVERSION=	2.7.0
+PORTREVISION=	1
 CATEGORIES=	biology
-MASTER_SITES=	https://www.tbi.univie.ac.at/RNA/download/sourcecode/2_6_x/
+MASTER_SITES=	https://www.tbi.univie.ac.at/RNA/download/sourcecode/2_7_x/
 DISTNAME=	ViennaRNA-${DISTVERSION}
 
 MAINTAINER=	yuri@FreeBSD.org
 COMMENT=	Alignment tools for the structural analysis of RNA
-WWW=		https://www.tbi.univie.ac.at/RNA/
+WWW=		https://www.tbi.univie.ac.at/RNA/ \
+		https://github.com/ViennaRNA/ViennaRNA
 
 LICENSE=	ViennaRNALicense
 LICENSE_NAME=	Vienna RNA License
 LICENSE_FILE=	${WRKSRC}/COPYING
 LICENSE_PERMS=	auto-accept dist-mirror pkg-mirror
 
-#BROKEN_FreeBSD_14=	fails to compile: no member named 'bind2nd' in namespace 'std'
+BROKEN_FreeBSD_13=	compilation fails with clang-19: see https://github.com/ViennaRNA/ViennaRNA/issues/253
+BROKEN_FreeBSD_15=	compilation fails with clang-19: see https://github.com/ViennaRNA/ViennaRNA/issues/253
 
 BUILD_DEPENDS=	bash:shells/bash \
 		lapacke>0:math/lapacke \
@@ -30,6 +33,7 @@ USES=		autoreconf bison compiler:c++17-lang fortran gmake \
 USE_XORG=	ice x11 xext # only for build
 
 GNU_CONFIGURE=	yes
+GNU_CONFIGURE_MANPREFIX=	${PREFIX}/share
 CONFIGURE_SHELL=	${PREFIX}/bin/bash
 CONFIGURE_ARGS=	--enable-shared --disable-static --with-gsl --with-cluster --with-kinwalker --enable-mpfr --without-python --without-python3 --without-perl
 
@@ -52,5 +56,10 @@ PORTEXAMPLES=	*
 
 post-configure: # remove -lstdc++ from .pc file
 	@${REINPLACE_CMD} -e 's| -lstdc++||' ${WRKSRC}/RNAlib2.pc
+
+post-install:
+	# remove stray files
+	@${RM} ${STAGEDIR}/RNA/RNAconsensus.py
+	@${RMDIR} ${STAGEDIR}/RNA
 
 .include <bsd.port.mk>

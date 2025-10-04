@@ -1,6 +1,5 @@
 PORTNAME=	libqalculate
-PORTVERSION=	4.8.1
-PORTREVISION=	1
+PORTVERSION=	5.7.0
 CATEGORIES=	math
 MASTER_SITES=	https://github.com/Qalculate/${PORTNAME}/releases/download/v${PORTVERSION}/
 

@@ -1,5 +1,5 @@
 PORTNAME=	lttng-ust
-PORTVERSION=	2.13.2
+DISTVERSION=	2.13.9
 CATEGORIES=	sysutils
 MASTER_SITES=	http://lttng.org/files/${PORTNAME}/
 
@@ -7,7 +7,7 @@ MAINTAINER=	ports@FreeBSD.org
 COMMENT=	Libraries to instrument and trace user applications
 WWW=		https://github.com/lttng/lttng-ust
 
-LICENSE=		LGPL21 MIT GPLv2
+LICENSE=		GPLv2 LGPL21 MIT
 LICENSE_COMB=		dual
 LICENSE_FILE_GPLv2=	${WRKSRC}/LICENSE
 LICENSE_FILE_LGPL21=	${WRKSRC}/LICENSE

@@ -3,7 +3,7 @@
  * suricata_flow_stream.php
  *
  * part of pfSense (https://www.pfsense.org)
- * Copyright (c) 2006-2023 Rubicon Communications, LLC (Netgate)
+ * Copyright (c) 2006-2025 Rubicon Communications, LLC (Netgate)
  * Copyright (c) 2003-2004 Manuel Kasper
  * Copyright (c) 2005 Bill Marquette
  * Copyright (c) 2009 Robert Zelaya Sr. Developer
@@ -32,7 +32,7 @@ if (isset($_POST['id']) && is_numericint($_POST['id']))
 	$id = $_POST['id'];
 elseif (isset($_GET['id']) && is_numericint($_GET['id']))
 	$id = htmlspecialchars($_GET['id']);
-if (is_null($id))
+if (!is_numericint($id))
 	$id=0;
 
 $a_aliases = config_get_path('aliases/alias', []);
@@ -500,13 +500,13 @@ display_top_tabs($tab_array, true);
 	if ($importalias) {
 
 		print('<form action="suricata_flow_stream.php" method="post" name="iform" id="iform" class="form-horizontal">');
-		print('<input type="hidden" name="eng_id" id="eng_id" value="' . $eng_id . '"/>');
-		print('<input type="hidden" name="id" id="id" value="' . $id . '"/>');
+		print('<input type="hidden" name="eng_id" id="eng_id" value="' . htmlspecialchars($eng_id) . '"/>');
+		print('<input type="hidden" name="id" id="id" value="' . htmlspecialchars($id) . '"/>');
 
 		if ($selectalias) {
-			print('<input type="hidden" name="eng_name" value="' . $eng_name . '"/>');
-			print('<input type="hidden" name="eng_bind" value="' . $eng_bind . '"/>');
-			print('<input type="hidden" name="eng_policy" value="' . $eng_policy . '"/>');
+			print('<input type="hidden" name="eng_name" value="' . htmlspecialchars($eng_name) . '"/>');
+			print('<input type="hidden" name="eng_bind" value="' . htmlspecialchars($eng_bind) . '"/>');
+			print('<input type="hidden" name="eng_policy" value="' . htmlspecialchars($eng_policy) . '"/>');
 		}
 
 		include("/usr/local/www/suricata/suricata_import_aliases.php");
@@ -540,11 +540,11 @@ display_top_tabs($tab_array, true);
 									<th><?=gettext("Bind-To Address Alias")?></th>
 									<th>
 										<button type="submit" name="import_alias[]" class="btn btn-sm btn-primary" title="<?=gettext("Import policy configuration from existing Aliases")?>" value="Import">
-											<i class="fa fa-upload icon-embed-btn"></i>
+											<i class="fa-solid fa-upload icon-embed-btn"></i>
 											<?=gettext("Import"); ?>
 										</button>
 										<button type="submit" name="add_os_policy[]" class="btn btn-sm btn-success" title="<?=gettext("Add a new policy configuration")?>" value="Add">
-											<i class="fa fa-plus icon-embed-btn"></i>
+											<i class="fa-solid fa-plus icon-embed-btn"></i>
 											<?=gettext("Add"); ?>
 										</button>
 									</th>
@@ -553,21 +553,21 @@ display_top_tabs($tab_array, true);
 							<tbody>
 								<?php foreach ($pconfig['host_os_policy']['item'] as $f => $v): ?>
 									<tr>
-										<td><?=gettext($v['name'])?></td>
-										<td><?=gettext($v['bind_to'])?></td>
+										<td><?=htmlspecialchars(gettext($v['name']))?></td>
+										<td><?=htmlspecialchars(gettext($v['bind_to']))?></td>
 										<td>
 											<button type="submit" name="edit_os_policy[]" class="btn btn-sm btn-primary" value="Edit" onclick="document.getElementById('eng_id').value='<?=$f?>'" title="<?=gettext("Edit this policy configuration")?>">
-												<i class="fa fa-pencil icon-embed-btn"></i>
+												<i class="fa-solid fa-pencil icon-embed-btn"></i>
 												<?=gettext("Edit"); ?>
 											</button>
 								<?php if ($v['bind_to'] != "all") : ?>
 											<button type="submit" name="del_os_policy[]" class="btn btn-sm btn-danger" value="Delete" onclick="document.getElementById('eng_id').value='<?=$f?>';" title="<?=gettext("Delete this policy configuration")?>">
-												<i class="fa fa-trash icon-embed-btn"></i>
+												<i class="fa-solid fa-trash-can icon-embed-btn"></i>
 												<?=gettext("Delete"); ?>
 											</button>
 								<?php else : ?>
 											<button type="submit" name="del_os_policy[]" class="btn btn-sm btn-danger" value="Delete" title="<?=gettext("Default policy configuration cannot be deleted")?>" disabled>
-												<i class="fa fa-trash icon-embed-btn"></i>
+												<i class="fa-solid fa-trash-can icon-embed-btn"></i>
 												<?=gettext("Delete"); ?>
 											</button>
 								<?php endif ?>

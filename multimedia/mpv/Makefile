@@ -1,11 +1,12 @@
 PORTNAME=	mpv
 DISTVERSIONPREFIX=	v
-DISTVERSION=	0.37.0
+DISTVERSION=	0.40.0
+PORTREVISION=	5
 PORTEPOCH=	1
 CATEGORIES=	multimedia audio
 
-PATCH_SITES=	https://github.com/${GH_ACCOUNT}/${GH_PROJECT}/commit/
-PATCHFILES+=	f4cc236a641e.patch:-p1 # https://github.com/mpv-player/mpv/pull/12941
+PATCH_SITES=	https://github.com/mpv-player/mpv/commit/
+PATCHFILES=	26b29fba02a2782f68e2906f837d21201fc6f1b9.patch:-p1
 
 MAINTAINER=	multimedia@FreeBSD.org
 COMMENT=	Free and open-source general-purpose video player
@@ -16,7 +17,7 @@ LICENSE_COMB=	multi
 LICENSE_FILE_GPLv2+ =	${WRKSRC}/LICENSE.GPL
 LICENSE_FILE_LGPL21+ =	${WRKSRC}/LICENSE.LGPL
 
-BUILD_DEPENDS=	ffmpeg>=4.0.2,1:multimedia/ffmpeg
+BUILD_DEPENDS=	ffmpeg>=6.1,1:multimedia/ffmpeg
 LIB_DEPENDS=	libplacebo.so:graphics/libplacebo \
 		libavcodec.so:multimedia/ffmpeg \
 		libass.so:multimedia/libass
@@ -29,18 +30,16 @@ SHEBANG_FILES=	TOOLS/*.py
 USE_GITHUB=	yes
 GH_ACCOUNT=	mpv-player
 MESON_ARGS=	--auto-features=auto \
-		-Dshaderc=disabled \
-		-Dlibmpv=true
+		-Dshaderc=disabled
 
-OPTIONS_DEFINE=		ARCHIVE DOCS LCMS2 MANPAGES MUJS RUBBERBAND UCHARDET EXAMPLES ZIMG
-OPTIONS_DEFAULT=	ARCHIVE DVDNAV LCMS2 LUAJIT MANPAGES NVDEC OPENGL UCHARDET \
+OPTIONS_DEFINE=		ARCHIVE DOCS EXAMPLES LCMS2 MANPAGES MUJS RUBBERBAND \
+			UCHARDET YTDLP ZIMG
+OPTIONS_DEFAULT=	ARCHIVE DRM DVDNAV LCMS2 LUAJIT MANPAGES NVDEC OPENGL UCHARDET \
 			V4L VAAPI VDPAU VULKAN WAYLAND X11 YTDLP
 OPTIONS_GROUP=		IN VO AO
 OPTIONS_GROUP_IN=	CDIO DVDNAV LIBBLURAY V4L VAPOURSYNTH
-OPTIONS_GROUP_VO=	CACA NVDEC OPENGL SIXEL VAAPI VDPAU VULKAN WAYLAND X11
+OPTIONS_GROUP_VO=	CACA DRM NVDEC OPENGL SIXEL VAAPI VDPAU VULKAN WAYLAND X11
 OPTIONS_GROUP_AO=	ALSA JACK OPENAL PIPEWIRE PULSEAUDIO SDL SNDIO
-OPTIONS_RADIO=		YOUTUBE
-OPTIONS_RADIO_YOUTUBE=	YTDL YTDLP
 OPTIONS_SINGLE=		LUA
 OPTIONS_SINGLE_LUA=	LUA LUAJIT LUA_NONE
 OPTIONS_SUB=		yes
@@ -55,8 +54,7 @@ SIXEL_DESC=		Sixel graphics support
 UCHARDET_DESC=		Guess subtitle encoding via uchardet
 VAPOURSYNTH_DESC=	VapourSynth filter bridge
 VULKAN_DESC=		Vulkan output support
-YTDLP_DESC=		Install yt-dlp (youtube-dl fork)
-YTDL_DESC=		Install youtube-dl
+YTDLP_DESC=		Support ytdl protocol (installs yt-dlp)
 ZIMG_DESC=		High quality software scaling via "z" library
 IN_DESC=		Input
 VO_DESC=		Video Output
@@ -83,6 +81,11 @@ DVDNAV_MESON_ENABLED=		dvdnav
 JACK_LIB_DEPENDS=		libjack.so:audio/jack
 JACK_MESON_ENABLED=		jack
 
+DRM_DESC=			KMS console support
+DRM_LIB_DEPENDS=		libdrm.so:graphics/libdrm \
+				libdisplay-info.so:sysutils/libdisplay-info
+DRM_MESON_ENABLED=		drm
+
 LCMS2_LIB_DEPENDS=		liblcms2.so:graphics/lcms2
 LCMS2_MESON_ENABLED=		lcms2
 
@@ -96,6 +99,8 @@ LUAJIT_USES=			luajit
 LUAJIT_MESON_ON=		-Dlua=luajit
 
 LUA_NONE_MESON_ON=		-Dlua=disabled
+LUA_NONE_PREVENTS=		YTDLP
+LUA_NONE_PREVENTS_MSG=		Lua scripting is required for YouTube playback
 
 MANPAGES_BUILD_DEPENDS=		rst2man:textproc/py-docutils
 MANPAGES_MESON_ENABLED=		manpage-build
@@ -139,6 +144,7 @@ UCHARDET_LIB_DEPENDS=		libuchardet.so:textproc/uchardet
 UCHARDET_MESON_ENABLED=		uchardet
 
 V4L_BUILD_DEPENDS=		${LOCALBASE}/include/linux/dvb/dmx.h:multimedia/v4l_compat
+V4L_USES=			localbase
 V4L_MESON_ENABLED=		dvbin
 
 VAAPI_LIB_DEPENDS=		libva.so:multimedia/libva
@@ -170,8 +176,6 @@ X11_USE=			XORG=x11,xext,xinerama,xorgproto,xpresent,xrandr,xscrnsaver,xv,xxf86v
 X11_MESON_ENABLED=		x11
 
 YTDLP_RUN_DEPENDS=		yt-dlp:www/yt-dlp
-
-YTDL_RUN_DEPENDS=		youtube-dl:www/youtube_dl
 
 ZIMG_LIB_DEPENDS=		libzimg.so:graphics/sekrit-twc-zimg
 ZIMG_MESON_ENABLED=		zimg

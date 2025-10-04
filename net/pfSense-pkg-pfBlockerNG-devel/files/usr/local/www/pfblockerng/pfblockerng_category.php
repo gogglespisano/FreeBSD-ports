@@ -3,8 +3,8 @@
  * pfblockerng_category.php
  *
  * part of pfSense (https://www.pfsense.org)
- * Copyright (c) 2016-2023 Rubicon Communications, LLC (Netgate)
- * Copyright (c) 2015-2023 BBcan177@gmail.com
+ * Copyright (c) 2016-2025 Rubicon Communications, LLC (Netgate)
+ * Copyright (c) 2015-2024 BBcan177@gmail.com
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,7 @@ require_once('guiconfig.inc');
 require_once('globals.inc');
 require_once('/usr/local/pkg/pfblockerng/pfblockerng.inc');
 
-global $config, $pfb;
+global $pfb;
 pfb_global();
 
 $action = $gtype = '';
@@ -116,22 +116,18 @@ switch ($gtype) {
 
 // Collect rowdata
 if ($type != 'GeoIP') {
-	init_config_arr(array('installedpackages', $conf_type, 'config'));
-	$rowdata = &$config['installedpackages'][$conf_type]['config'];
+	$rowdata_path = "installedpackages/{$conf_type}/config";
+	$rowdata = config_get_path($rowdata_path, []);
 } else {
 
 	// Collect GeoIP rowdata
 	foreach ($pfb['continents'] as $continent => $pfb_alias) {
-		if (isset($config['installedpackages']['pfblockerng' . strtolower(str_replace(' ', '', $continent))]['config'])) {
-			$continent_config = $config['installedpackages']['pfblockerng' . strtolower(str_replace(' ', '', $continent))]['config'];
-		}
-		else {
-			$continent_config			= array();
-			$continent_config[0]			= array();
-			$continent_config[0]['action']		= 'Disabled';
-			$continent_config[0]['cron']		= 'Never';
-			$continent_config[0]['aliaslog']	= 'enabled';
-		}
+		$continent_config = config_get_path('installedpackages/pfblockerng' . strtolower(str_replace(' ', '', $continent)) . '/config', [[
+			'action' => 'Disabled',
+			'cron' => 'Never',
+			'aliaslog' => 'enabled'
+		]]);
+
 		if (!is_array($continent_config[0])) {
 			$continent_config[0] = array();
 		}
@@ -146,7 +142,10 @@ if ($type != 'GeoIP') {
 if (isset($rowdata[0]) && empty($rowdata[0])) {
 	unset($rowdata[0]);
 	$rowdata = array_values($rowdata);
-	write_config("pfBlockerNG: Removed empty rowdata");
+	if (isset($rowdata_path)) {
+		config_set_path($rowdata_path, $rowdata);
+	}
+	write_config("pfBlockerNG: Removed empty rowdata", false);
 }
 
 if (!empty($action) && isset($gtype) && isset($rowid)) {
@@ -157,7 +156,10 @@ if (!empty($action) && isset($gtype) && isset($rowid)) {
 			$name = pfb_filter($rowdata[$rowid]['aliasname'], PFB_FILTER_WORD, 'Category');
 			if (!empty($name) && isset($rowdata[$rowid])) {
 				unset($rowdata[$rowid]);
-				write_config("pfBlockerNG: Removed [ {$type} | {$name} ]");
+				if (isset($rowdata_path)) {
+					config_del_path("{$rowdata_path}/{$rowid}");
+				}
+				write_config("pfBlockerNG: Removed [ {$type} | {$name} ]", false);
 				$savemsg = "Removed [ Type: {$type}, Name: {$name} ]";
 			} else {
 				$savemsg = "Could not delete [ Type: {$type}, Name: {$name} ], not found";
@@ -253,11 +255,13 @@ if (!empty($action) && isset($gtype) && isset($rowid)) {
 							if (!$input_errors) {
 								if ($gtype != 'geoip') {
 									$rowdata[$rowid][$variable] = pfb_filter($value, PFB_FILTER_HTML, 'Category');
+									if (isset($rowdata_path)) {
+										config_set_path("{$rowdata_path}/{$rowid}/{$variable}", $rowdata[$rowid][$variable]);
+									}
 								} else {
 									$continent = pfb_filter(strtolower(str_replace(' ', '', $rowdata[$rowid]['aliasname'])), PFB_FILTER_HTML, 'Category');
 
-									init_config_arr(array('installedpackages', 'pfblockerng' . $continent, 'config', 0));
-									$config['installedpackages']['pfblockerng' . $continent]['config'][0][$variable] = pfb_filter($value, PFB_FILTER_HTML, 'Category');
+									config_set_path("installedpackages/pfblockerng{$continent}/config/0/{$variable}", pfb_filter($value, PFB_FILTER_HTML, 'Category'));
 								}
 							}
 						}
@@ -290,12 +294,15 @@ if (!empty($action) && isset($gtype) && isset($rowid)) {
 
 					if (!$input_errors) {
 						$rowdata = $new_rows;
+						if (isset($rowdata_path)) {
+							config_set_path($rowdata_path, $rowdata);
+						}
 					}
 				}
 
 				// Save postdata and Table re-ordering
 				if (!$input_errors) {
-					write_config("pfBlockerNG: Saved page order format/settings for [ {$type} ]");
+					write_config("pfBlockerNG: Saved page order format/settings for [ {$type} ]", false);
 				} else {
 					// return errors to AJAX request
 					print(json_encode($input_errors));
@@ -530,9 +537,9 @@ if (isset($savemsg)) {
 					<td>
 					<?php if ($gtype != 'geoip'): ?>
 						<a href="/pfblockerng/pfblockerng_category_edit.php?type=<?=$gtype?>&rowid=<?=$r_id?>">
-							<i class="fa fa-pencil" alt="edit"></i>
+							<i class="fa-solid fa-pencil" alt="edit"></i>
 						</a>
-						<i class="fa fa-trash icon-pointer no-confirm"
+						<i class="fa-solid fa-trash-can icon-pointer no-confirm"
 							title="<?=gettext('Delete selected entry') . ' [ ' . $row['aliasname'] .' ] ?' ?>"
 							onclick="$('#rowid').val('<?=$r_id?>');$('#act').val('del');pfb_rownamedelete();">
 						</i>
@@ -544,19 +551,19 @@ if (isset($savemsg)) {
 
 							<a href="/pfblockerng/pfblockerng_category_edit.php?type=<?=$gtype?>&rowid=<?=$r_id?>#Customlist"
 								title="Quick link to Custom List">
-								<i class="fa fa-anchor" alt="edit"></i>
+								<i class="fa-solid fa-anchor" alt="edit"></i>
 								</a>
 							<?php endif; ?>
 
 						<?php
 							if ($gtype == 'dnsbl' && isset($row['order']) && $row['order'] == 'primary'):
 						?>
-							<i class="fa fa-check-square-o" style="cursor: default" title="DNSBL Primary Group order defined"></i>
+							<i class="fa-regular fa-square-check" style="cursor: default" title="DNSBL Primary Group order defined"></i>
 							<?php endif; ?>
 
 					<?php elseif ($maxmind_verify && file_exists("/usr/local/www/pfblockerng/pfblockerng_{$row['filename']}.php")): ?>
 						<a href="/pfblockerng/pfblockerng_<?=$row['filename'];?>.php">
-							<i class="fa fa-pencil" alt="edit"></i>
+							<i class="fa-solid fa-pencil" alt="edit"></i>
 						</a>
 					<?php endif; ?>
 
@@ -580,12 +587,12 @@ if (isset($savemsg)) {
 	<nav class="action-buttons">
 		<?php if ($gtype != 'geoip'): ?>
 		<a href="/pfblockerng/pfblockerng_category_edit.php?type=<?=$gtype?>&rowid=<?=$r_id +1?>" class="btn btn-sm btn-success">
-			<i class="fa fa-plus icon-embed-btn"></i>
+			<i class="fa-solid fa-plus icon-embed-btn"></i>
 			<?=gettext('Add')?>
 		</a>
 		<?php endif; ?>
 		<button class="btn btn-sm btn-primary" type="button" id="btnsave" title="Save the page 'Order' format">
-			<i class="fa fa-save icon-embed-btn"></i>
+			<i class="fa-solid fa-save icon-embed-btn"></i>
 			<?=gettext('Save')?>
 		</button>&emsp;
 	</nav>
@@ -595,8 +602,7 @@ if (isset($savemsg)) {
 if ($gtype == 'geoip') {
 	print_callout('GeoIP database GeoLite2 distributed under the Creative Commons Attribution-ShareAlike 4.0 International License by:
 			<a target="_blank" href="https://www.maxmind.com">MaxMind Inc.</a><br /><br />
-			The GeoIP database is automatically updated the first Tuesday of each month.<br />
-			(To avoid any MaxMind update delays, update is now scheduled for the first Thursday of each month.)<br /><br />
+			The GeoIP database is automatically updated each day at a random hour.<br /><br />
 
 			<span class="text-danger"><strong>Note:&emsp;</strong></span>
 			pfSense by default implicitly blocks all unsolicited inbound traffic to the WAN interface.<br />

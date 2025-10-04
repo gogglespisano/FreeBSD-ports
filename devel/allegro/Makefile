@@ -1,6 +1,6 @@
 PORTNAME=	allegro
 DISTVERSION=	4.4.3.1
-PORTREVISION=	3
+PORTREVISION=	4
 CATEGORIES=	devel
 MASTER_SITES=	https://github.com/liballeg/allegro5/releases/download/${DISTVERSION}/
 
@@ -17,7 +17,7 @@ LIB_DEPENDS=	libogg.so:audio/libogg \
 		libpng.so:graphics/png \
 		libvorbis.so:audio/libvorbis
 
-USES=		cmake gl pkgconfig xorg
+USES=		cmake gl localbase:ldflags pkgconfig xorg
 USE_GL=		gl glu
 USE_LDCONFIG=	yes
 USE_XORG=	ice sm x11 xcursor xext xpm xxf86dga xxf86vm
@@ -41,7 +41,6 @@ OPTIONS_MULTI_AUDIO=	ALSA JACK OSS SNDIO
 OPTIONS_SUB=	yes
 
 ALSA_LIB_DEPENDS=	libasound.so:audio/alsa-lib
-ALSA_USES=		localbase:ldflags
 ALSA_CMAKE_BOOL=	WANT_ALSA
 
 JACK_LIB_DEPENDS=	libjack.so:audio/jack
@@ -64,7 +63,7 @@ post-patch-JACK-on:
 		${WRKSRC}/src/unix/jack.c
 
 post-install:
-	${INSTALL_MAN} ${INSTALL_WRKSRC}/docs/man/*.3 ${STAGEDIR}${MAN3PREFIX}/man/man3/
+	${INSTALL_MAN} ${INSTALL_WRKSRC}/docs/man/*.3 ${STAGEDIR}${PREFIX}/share/man/man3/
 
 post-install-EXAMPLES-on:
 	@(cd ${WRKSRC}/examples && ${COPYTREE_SHARE} . ${STAGEDIR}${EXAMPLESDIR})

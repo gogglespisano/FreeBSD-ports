@@ -3,7 +3,7 @@
  * frr_zebra.inc
  *
  * part of pfSense (https://www.pfsense.org)
- * Copyright (c) 2017-2023 Rubicon Communications, LLC (Netgate)
+ * Copyright (c) 2017-2025 Rubicon Communications, LLC (Netgate)
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -244,7 +244,7 @@ function frr_zebra_generate_aspaths() {
 	global $frr_config_base;
 
 	/* Do not generate AS Path if BGP daemon is disabled */
-	if (!config_path_enabled('installedpackages/frrbgp/config/0', 'enable')) {
+	if (!config_path_enabled('installedpackages/frrbgp/config/0')) {
 		return null;
 	}
 
@@ -352,7 +352,7 @@ function frr_zebra_generate_communitylists() {
 	global $frr_config_base, $frr_well_known_communities;
 
 	/* Do not generate Community List if BGP daemon is disabled */
-	if (!config_path_enabled('installedpackages/frrbgp/config/0', 'enable')) {
+	if (!config_path_enabled('installedpackages/frrbgp/config/0')) {
 		return null;
 	}
 

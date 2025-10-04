@@ -1,16 +1,16 @@
---- src/3rdparty/chromium/content/browser/gpu/gpu_process_host.cc.orig	2023-08-16 19:50:41 UTC
+--- src/3rdparty/chromium/content/browser/gpu/gpu_process_host.cc.orig	2024-10-22 08:31:56 UTC
 +++ src/3rdparty/chromium/content/browser/gpu/gpu_process_host.cc
-@@ -252,6 +252,7 @@ static const char* const kSwitchNames[] = {
-     switches::kEnableBackgroundThreadPool,
-     switches::kEnableGpuRasterization,
-     switches::kEnableLogging,
+@@ -275,6 +275,7 @@ static const char* const kSwitchNames[] = {
+     switches::kEnableLowEndDeviceMode,
+     switches::kDisableSkiaGraphite,
+     switches::kDisableLowEndDeviceMode,
 +    switches::kDisableUnveil,
-     switches::kDoubleBufferCompositing,
-     switches::kHeadless,
-     switches::kLoggingLevel,
-@@ -283,7 +284,7 @@ static const char* const kSwitchNames[] = {
+     switches::kProfilingAtStart,
+     switches::kProfilingFile,
+     switches::kProfilingFlush,
+@@ -302,7 +303,7 @@ static const char* const kSwitchNames[] = {
      switches::kOzoneDumpFile,
-     switches::kDisableBufferBWCompression,
+     switches::kEnableNativeGpuMemoryBuffers,
  #endif
 -#if BUILDFLAG(IS_LINUX)
 +#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_BSD)

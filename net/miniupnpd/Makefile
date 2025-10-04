@@ -1,45 +1,45 @@
 PORTNAME=	miniupnpd
-DISTVERSION=	2.3.3
-PORTREVISION=	2
+DISTVERSION=	2.3.9
+PORTREVISION=	1
 PORTEPOCH=	1
+PORTREVISION=	1
 CATEGORIES=	net
+MASTER_SITES=	http://miniupnp.free.fr/files/ \
+		https://github.com/miniupnp/miniupnp/releases/download/${PORTNAME}_${DISTVERSION:S|.|_|g}/
+
+PATCH_SITES=	https://github.com/miniupnp/miniupnp/commit/
+PATCHFILES=	7949a7acb3b8471681157863387339ea2ca749fb.patch:-p2
 
 MAINTAINER=	squat@squat.no
-COMMENT=	UPnP IGD implementation which uses pf
+COMMENT=	Lightweight UPnP IGD & PCP/NAT-PMP daemon which uses pf
+COMMENT.debug=	Debug files for miniupnpd
 WWW=		http://miniupnp.free.fr/
 
 LICENSE=	BSD3CLAUSE
 
-LIB_DEPENDS=   libpfctl.so:net/libpfctl
+SUBPACKAGES=	debug
+SELF_DEPENDS.debug=	main
 
-USES=		cpe ssl localbase:ldflags
+LIB_DEPENDS=	libpfctl.so:net/libpfctl
+
+USES=		cpe localbase:ldflags ssl
 CPE_VENDOR=	miniupnp_project
 
-USE_GITHUB=	yes
-GH_ACCOUNT=	miniupnp
-GH_PROJECT=	miniupnp
-GH_TAGNAME=	e439318
-
-USE_RC_SUBR=	miniupnpd
+USE_RC_SUBR=	${PORTNAME}
 
 HAS_CONFIGURE=	yes
-CPE_VENDOR=	miniupnp_project
-PLIST_FILES=	etc/miniupnpd.conf.sample sbin/miniupnpd \
-		man/man8/miniupnpd.8.gz
-MAKE_JOBS_UNSAFE=yes
-USE_RC_SUBR=	miniupnpd
+# unconditionally use pf, ipfw does not work on FreeBSD
+CONFIGURE_ARGS=	--firewall=pf --libpfctl
+
+MAKE_JOBS_UNSAFE=	yes
 
 CFLAGS+=	-I${OPENSSLINC}
 LDFLAGS+=	-L${OPENSSLLIB} -lpfctl
 
-WRKSRC_SUBDIR=	miniupnpd
-
 PLIST_FILES=	etc/miniupnpd.conf.sample \
-		man/man8/miniupnpd.8.gz \
+		share/man/man8/miniupnpd.8.gz \
 		sbin/miniupnpd
-
-# unconditionally use pf, ipfw does not work on FreeBSD
-CONFIGURE_ARGS=	--firewall=pf
+PLIST_FILES.debug=	sbin/miniupnpd.debug
 
 OPTIONS_DEFINE=			CHECK_PORTINUSE IPV6 LEASEFILE UPNP_IGDV2 \
 				UPNP_STRICT
@@ -48,7 +48,6 @@ LEASEFILE_DESC=			Enable lease file
 UPNP_IGDV2_DESC=		Build an IGDv2 instead of an IGDv1
 UPNP_STRICT_DESC=		More strict UPnP specification compliance
 
-PF_FILTER_RULES_CONFIGURE_ON=	--firewall=pf
 CHECK_PORTINUSE_CONFIGURE_ON=	--portinuse
 IPV6_CONFIGURE_ON=		--ipv6
 LEASEFILE_CONFIGURE_ON=		--leasefile
@@ -56,7 +55,8 @@ UPNP_IGDV2_CONFIGURE_ON=	--igd2
 UPNP_STRICT_CONFIGURE_ON=	--strict
 
 post-patch:
-	${REINPLACE_CMD} -e 's|\(-lssl -lcrypto\)|$$(LDFLAGS) \1|g' \
+	@${REINPLACE_CMD} -e 's|\(-lssl -lcrypto\)|$$(LDFLAGS) \1|g' \
+		-e 's|^INSTALLMANDIR.*|INSTALLMANDIR = ${PREFIX}/share/man|' \
 		${WRKSRC}/Makefile.bsd
 
 .include <bsd.port.mk>

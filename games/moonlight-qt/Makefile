@@ -1,5 +1,6 @@
 PORTNAME=	moonlight
-DISTVERSION=	5.0.1
+DISTVERSION=	6.1.0
+PORTREVISION=	2
 CATEGORIES=	games
 MASTER_SITES=	https://github.com/moonlight-stream/moonlight-qt/releases/download/v${DISTVERSION}/
 PKGNAMESUFFIX=	-qt
@@ -12,16 +13,17 @@ WWW=		https://github.com/moonlight-stream/moonlight-qt
 LICENSE=	GPLv3+
 LICENSE_FILE=	${WRKSRC}/LICENSE
 
+BUILD_DEPENDS=	${LOCALBASE}/include/vulkan/vulkan.h:graphics/vulkan-headers
 LIB_DEPENDS=	libavcodec.so:multimedia/ffmpeg \
 		libopus.so:audio/opus \
 		libva.so:multimedia/libva \
 		libdrm.so:graphics/libdrm \
 		libvdpau.so:multimedia/libvdpau \
+		libplacebo.so:graphics/libplacebo \
 		libwayland-client.so:graphics/wayland
 
 USES=		desktop-file-utils gl localbase:ldflags pkgconfig \
-		qmake:outsource qt:5 sdl ssl xorg
-USE_QT=		core declarative gui network quickcontrols2 svg widgets buildtools:build
+		qmake:outsource sdl ssl xorg
 USE_GL=		egl
 USE_SDL=	sdl2 ttf2
 USE_XORG=	x11
@@ -33,12 +35,20 @@ PLIST_FILES=	bin/moonlight-qt \
 		share/metainfo/com.moonlight_stream.Moonlight.appdata.xml \
 		share/icons/hicolor/scalable/apps/moonlight.svg \
 
-.include <bsd.port.pre.mk>
+OPTIONS_DEFAULT=	QT6
+QT5_DESC=	QT 5 toolkit support
+QT6_DESC=	QT 6 toolkit support
+OPTIONS_SINGLE=	QT
+OPTIONS_SINGLE_QT=	QT6 QT5
+QT5_USES=	qt:5
+QT5_USE=	qt=core,declarative,gui,network,quickcontrols2,svg,widgets,buildtools:build
+QT6_USES=	qt:6
+QT6_USE=	qt=base,declarative,svg
 
-# fix ssl dependency lack on 12.x releases
-.if ${OPSYS} == FreeBSD && ${OSVERSION} < 1300000
-LDFLAGS+=	-L${LOCALBASE}/lib -L${OPENSSLLIB} -lssl -lcrypto
-.endif
+QT6_PATCH_SITES=	https://github.com/moonlight-stream/moonlight-qt/commit/
+# fix errors for qt6.9
+QT6_PATCHFILES+=	75359bb1c483ba9e52bba8c34a662d807e0cc3c4.patch:-p1 \
+			7a769172a1f62e5198584dff9fd924e8a9e431a0.patch:-p1
 
 post-patch:
 	@${REINPLACE_CMD} -e 's@Exec=moonlight.*@Exec=${PORTNAME}${PKGNAMESUFFIX}@' \
@@ -46,14 +56,7 @@ post-patch:
 	@${REINPLACE_CMD} -e 's@^    TARGET = moonlight.*@    TARGET = ${PORTNAME}${PKGNAMESUFFIX}@' \
 		${WRKSRC}/app/app.pro
 
-.if ${OPSYS} == FreeBSD && ${OSVERSION} < 1300000
-	@${REINPLACE_CMD} -e 's@openssl @@' \
-		${WRKSRC}/app/app.pro
-	@${REINPLACE_CMD} -e '/openssl/ d' \
-		${WRKSRC}/moonlight-common-c/moonlight-common-c.pro
-.endif
-
 post-install:
 	${STRIP_CMD} ${STAGEDIR}${PREFIX}/bin/${PORTNAME}${PKGNAMESUFFIX}
 
-.include <bsd.port.post.mk>
+.include <bsd.port.mk>

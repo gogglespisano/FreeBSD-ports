@@ -1,5 +1,5 @@
 PORTNAME=	bzrtp
-PORTVERSION=	5.2.94
+DISTVERSION=	5.4.28
 CATEGORIES=	security
 
 MAINTAINER=	bofh@FreeBSD.org
@@ -9,7 +9,8 @@ WWW=		https://www.linphone.org
 LICENSE=	GPLv3
 LICENSE_FILE=	${WRKSRC}/LICENSE.txt
 
-LIB_DEPENDS=	libbctoolbox.so:net/bctoolbox
+LIB_DEPENDS=	libbctoolbox.so:net/bctoolbox \
+		libbcunit.so:devel/bcunit
 
 USES=		cmake cpe gnome sqlite
 CPE_VENDOR=	${PORTNAME}_project
@@ -19,9 +20,7 @@ GL_ACCOUNT=	public
 USE_GNOME=	libxml2
 USE_LDCONFIG=	yes
 
-CMAKE_ARGS=	-DCMAKE_PREFIX_PATH=${LOCALBASE} \
-		-DENABLE_STATIC=NO \
-		-DENABLE_STRICT=NO
+CMAKE_ON=	BUILD_SHARED_LIBS
 
 post-patch:
 	@${REINPLACE_CMD} 's/<alloca\.h>/<stdlib.h>/' ${WRKSRC}/src/zidCache.c

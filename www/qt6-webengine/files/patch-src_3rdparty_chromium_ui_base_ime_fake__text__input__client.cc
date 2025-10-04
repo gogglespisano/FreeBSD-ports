@@ -1,7 +1,7 @@
---- src/3rdparty/chromium/ui/base/ime/fake_text_input_client.cc.orig	2023-08-16 19:50:41 UTC
+--- src/3rdparty/chromium/ui/base/ime/fake_text_input_client.cc.orig	2024-09-30 07:45:04 UTC
 +++ src/3rdparty/chromium/ui/base/ime/fake_text_input_client.cc
-@@ -167,7 +167,7 @@ bool FakeTextInputClient::ShouldDoLearning() {
-   return false;
+@@ -215,7 +215,7 @@ bool FakeTextInputClient::ShouldDoLearning() {
+   return should_do_learning_;
  }
  
 -#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)

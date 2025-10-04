@@ -1,12 +1,13 @@
 PORTNAME=	cargo-c
-DISTVERSION=	0.9.28
-DISTVERSIONSUFFIX=	+cargo-0.75.0
+DISTVERSION=	0.10.14
+DISTVERSIONSUFFIX=	+cargo-0.89.0
+PORTREVISION=	2
 CATEGORIES=	devel
 MASTER_SITES=	CRATESIO
 # XXX Teach USES=cargo to have proper default
 DISTFILES=	${CARGO_DIST_SUBDIR}/${DISTNAME}${CARGO_CRATE_EXT}
 
-MAINTAINER=	jbeich@FreeBSD.org
+MAINTAINER=	vishwin@FreeBSD.org
 COMMENT=	Cargo C-ABI helpers
 WWW=		https://github.com/lu-zero/cargo-c
 
@@ -27,7 +28,7 @@ PLIST_FILES=	bin/cargo-capi \
 .include <bsd.port.pre.mk>
 
 # prevent address space exhaustion on armv6/armv7
-.if ${ARCH:Marmv?}
+.if ${ARCH:Marmv?} || ${ARCH} == powerpc
 LTO_UNSAFE=	yes
 .endif
 

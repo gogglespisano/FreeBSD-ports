@@ -49,7 +49,7 @@ outputs:
       pass-list: {$suri_passlist}
       block-ip: {$suri_blockip}
       pf-table: {$suri_pf_table}
-      passlist-debugging: no   # Do not enable debugging on production systems!
+      passlist-debugging: {$suri_passlist_debugging}   # Do not enable debugging on production systems!
 
   # a line based alerts log similar to Snort's fast.log
   - fast:
@@ -64,7 +64,6 @@ outputs:
       filetype: {$http_log_filetype}
       append: {$http_log_append}
       extended: {$http_log_extended}
-      filetype: regular
 
   # a PCAP format packet capture facility
   - pcap-log:
@@ -139,6 +138,16 @@ outputs:
 # Magic file. The extension .mgc is added to the value here.
 magic-file: /usr/share/misc/magic
 
+# Unix command socket that can be used to pass commands to Suricata.
+# An external tool can then connect to get information from Suricata
+# or trigger some modifications of the engine. Set enabled to yes
+# to activate the feature. In auto mode, the feature will only be
+# activated in live capture mode. You can use the filename variable to set
+# the file name of the socket.
+unix-command:
+  enabled: yes
+  filename: {$unix_socket_name}
+
 # GeoLite2 IP geo-location database file path and filename.
 geoip-database: /usr/local/share/suricata/GeoLite2/GeoLite2-Country.mmdb
 
@@ -197,6 +206,12 @@ flow:
 # hashing.
 vlan:
   use-for-tracking: true
+
+# This option controls the use of livedev ids in the flow (and defrag)
+# hashing. This is enabled by default and should be disabled if
+# netmap is used with a host stack interface.
+livedev:
+  use-for-tracking: {$livedev_tracking}
 
 # Specific timeouts for flows.
 flow-timeouts:

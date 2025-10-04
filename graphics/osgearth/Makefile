@@ -1,6 +1,7 @@
 PORTNAME=	osgearth
-PORTVERSION=	3.5
+PORTVERSION=	3.6.1
 DISTVERSIONPREFIX=	${PORTNAME}-
+PORTREVISION=	8
 CATEGORIES=	graphics geography
 
 MAINTAINER=	zirias@FreeBSD.org
@@ -17,12 +18,12 @@ LIB_DEPENDS=	libcurl.so:ftp/curl \
 		libprotobuf.so:devel/protobuf \
 		libwebp.so:graphics/webp
 
-USES=		cmake compiler:c++14-lang gl pkgconfig sqlite
-USE_CXXSTD=	c++14
+USES=		cmake compiler:c++17-lang gl pkgconfig sqlite
+USE_CXXSTD=	c++17
 USE_GITHUB=	yes
 GH_ACCOUNT=	gwaldron ocornut:imgui Esri:lerc Tencent:rapidjson
 GH_PROJECT=	imgui:imgui lerc:lerc rapidjson:rapidjson
-GH_TAGNAME=	9e8e5ac:imgui 19542a0:lerc f54b0e4:rapidjson
+GH_TAGNAME=	cab7edd:imgui 19542a0:lerc f54b0e4:rapidjson
 USE_GL=		gl
 USE_LDCONFIG=	yes
 

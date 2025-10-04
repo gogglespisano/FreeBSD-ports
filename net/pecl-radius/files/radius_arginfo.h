@@ -203,3 +203,4 @@ static zend_class_entry *register_class_RadiusHandle(void)
 
 	return class_entry;
 }
+

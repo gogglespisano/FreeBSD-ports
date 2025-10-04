@@ -1,6 +1,6 @@
 PORTNAME=	poudriere
-DISTVERSION=	3.3.7
-PORTREVISION=	4
+DISTVERSION=	3.4.3
+PORTREVISION=	0
 CATEGORIES=	ports-mgmt
 MASTER_SITES=	LOCAL/bdrewery/${PORTNAME}/ \
 		http://mirror.shatow.net/freebsd/${PORTNAME}/ \
@@ -20,6 +20,8 @@ GH_ACCOUNT=	freebsd
 GNU_CONFIGURE=	yes
 ETCDIR=		${PREFIX}/etc/poudriere.d
 
+MAKE_ARGS+=	mandir=${PREFIX}/share/man
+
 OPTIONS_DEFINE=	BASH MANIFESTS PORTCONFIG EXAMPLES QEMU ZSH
 OPTIONS_DEFAULT=BASH MANIFESTS PORTCONFIG ZSH
 OPTIONS_SUB=	yes
@@ -32,6 +34,28 @@ PORTCONFIG_RUN_DEPENDS=	portconfig>0:ports-mgmt/portconfig
 
 QEMU_DESC=	Add qemu-user-static for non-x86 architectures
 QEMU_RUN_DEPENDS=	qemu-user-static>0:emulators/qemu-user-static
+
+# gmake is not strictly needed but handles test jobs better
+TEST_DEPENDS=	gmake>0:devel/gmake
+TEST_ENV=	MAKE=gmake
+.if make(test)
+MAKE_CMD=	gmake
+.endif
+TEST_TARGET=	check
+TEST_ARGS=	-s
+TEST_ARGS+=	${_MAKE_JOBS}
+# ccache passthrough helps for building pkg a few hundred times.
+# ccache not added as a dependency because it is only used if setup
+# and provided in the env already.
+# XXX: Passthrough local PKGREPOSITORY dir for fetch support
+ccache_vars=	CCACHE_DIR_NON_ROOT_SAFE CCACHE_GROUP \
+		CCACHE_GID CCACHE_STATIC_PREFIX CCACHE_TEMPDIR \
+		CCACHE_DIR CCACHE_NLEVELS
+.for _cv in ${ccache_vars}
+.  if !empty(${_cv})
+TEST_ENV+=	${_cv}=${${_cv}}
+.  endif
+.endfor
 
 .include <bsd.port.options.mk>
 
@@ -47,11 +71,9 @@ PLIST_SUB+=	RM="@comment "
 .endif
 
 post-patch:
-	${CP} -f ${WRKSRC}/src/bin/poudriere ${WRKSRC}/poudriere
 	${REINPLACE_CMD} \
 	    -e "s,^\(POUDRIERE_VERSION\)=.*,\1='${PKGVERSION}'," \
-	    ${WRKSRC}/poudriere
-	${REINPLACE_CMD} '/.PHONY: poudriere/d' ${WRKSRC}/Makefile.*
+	    ${WRKSRC}/src/bin/poudriere.in
 
 post-install:
 	${LN} -fs ${LOCALBASE}/share/freebsd/MANIFESTS \

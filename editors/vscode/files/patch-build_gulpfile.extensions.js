@@ -1,11 +1,11 @@
---- build/gulpfile.extensions.js.orig	2023-09-06 21:00:17 UTC
+--- build/gulpfile.extensions.js.orig	2025-09-09 22:02:15 UTC
 +++ build/gulpfile.extensions.js
-@@ -238,7 +238,7 @@ exports.compileExtensionMediaBuildTask = compileExtens
- const cleanExtensionsBuildTask = task.define('clean-extensions-build', util.rimraf('.build/extensions'));
- const compileExtensionsBuildTask = task.define('compile-extensions-build', task.series(
- 	cleanExtensionsBuildTask,
--	task.define('bundle-marketplace-extensions-build', () => ext.packageMarketplaceExtensionsStream(false).pipe(gulp.dest('.build'))),
-+	// task.define('bundle-marketplace-extensions-build', () => ext.packageMarketplaceExtensionsStream(false).pipe(gulp.dest('.build'))),
- 	task.define('bundle-extensions-build', () => ext.packageLocalExtensionsStream(false, false).pipe(gulp.dest('.build'))),
+@@ -235,7 +235,7 @@ const compileNonNativeExtensionsBuildTask = task.defin
+  * @note this does not clean the directory ahead of it. See {@link cleanExtensionsBuildTask} for that.
+  */
+ const compileNonNativeExtensionsBuildTask = task.define('compile-non-native-extensions-build', task.series(
+-	bundleMarketplaceExtensionsBuildTask,
++	// bundleMarketplaceExtensionsBuildTask,
+ 	task.define('bundle-non-native-extensions-build', () => ext.packageNonNativeLocalExtensionsStream(false, false).pipe(gulp.dest('.build')))
  ));
- 
+ gulp.task(compileNonNativeExtensionsBuildTask);

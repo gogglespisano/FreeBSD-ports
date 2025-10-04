@@ -14,7 +14,6 @@ BUILD_DEPENDS=	roundcube${PHP_PKGNAMESUFFIX}>=1.0:mail/roundcube@${PHP_FLAVOR}
 RUN_DEPENDS=	roundcube${PHP_PKGNAMESUFFIX}>=1.0:mail/roundcube@${PHP_FLAVOR}
 
 USES=		php:flavors
-IGNORE_WITH_PHP=83
 
 USE_GITHUB=	yes
 GH_ACCOUNT=	alexandregz
@@ -26,6 +25,9 @@ NO_ARCH=	yes
 SUB_FILES=	pkg-message
 
 WWWDIR=		${PREFIX}/www/roundcube/plugins/${PORTNAME}
+
+post-patch:
+	@${RM} ${WRKSRC}/docker-compose.yaml
 
 do-install:
 	${MKDIR} ${STAGEDIR}${WWWDIR}

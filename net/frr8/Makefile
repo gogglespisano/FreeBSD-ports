@@ -1,7 +1,6 @@
 PORTNAME=	frr
-PORTVERSION=	8.5.3
+PORTVERSION=	8.5.7
 DISTVERSIONPREFIX=	frr-
-PORTREVISION=	3
 CATEGORIES=	net
 .if defined(PYTHONTOOLS)
 PKGNAMESUFFIX=	8-pythontools
@@ -46,9 +45,10 @@ USES=		autoreconf bison compiler:c++11-lang gmake libtool makeinfo \
 
 BINARY_ALIAS=	python=${PYTHON_VERSION}
 
-CONFLICTS=	frr9 openbgpd openospfd quagga zebra
+CONFLICTS=	frr9 frr10 openbgpd openospfd quagga zebra
 
 GNU_CONFIGURE=	yes
+GNU_CONFIGURE_MANPREFIX=	${PREFIX}/share
 INSTALL_TARGET=	install-strip
 USE_LDCONFIG=	yes
 .endif

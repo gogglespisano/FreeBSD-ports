@@ -1,6 +1,6 @@
 PORTNAME=	qtractor
-DISTVERSIONPREFIX=	${PORTNAME}_
-DISTVERSION=	0_9_36
+DISTVERSIONPREFIX=	v
+DISTVERSION=	1.5.8
 CATEGORIES=	audio
 MASTER_SITES=	https://download.steinberg.net/sdk_downloads/:vst3sdk
 DISTFILES=	${VST3_SDK_ARCHIVE}:vst3sdk
@@ -8,12 +8,11 @@ EXTRACT_ONLY=	${GH_ACCOUNT}-${GH_PROJECT}-${GH_TAGNAME}_GH0${EXTRACT_SUFX}
 
 MAINTAINER=	yuri@FreeBSD.org
 COMMENT=	Audio/MIDI multi-track sequencer
-WWW=		https://qtractor.org/
+WWW=		https://qtractor.org \
+		https://github.com/rncbc/qtractor
 
 LICENSE=	GPLv2+
 LICENSE_FILE=	${WRKSRC}/LICENSE
-
-BROKEN_armv7=	non-constant-expression cannot be narrowed from type 'double' to 'float' in initializer list, see https://github.com/rncbc/qtractor/issues/353
 
 LIB_DEPENDS=	libasound.so:audio/alsa-lib \
 		libaubio.so:audio/aubio \
@@ -36,7 +35,7 @@ LIB_DEPENDS=	libasound.so:audio/alsa-lib \
 RUN_DEPENDS=	alsa-seq-server>0:audio/alsa-seq-server
 
 USES=		cmake compiler:c++17-lang desktop-file-utils gettext-runtime gnome localbase:ldflags pkgconfig qt:5 shared-mime-info
-USE_GNOME=	atk cairo gdkpixbuf2 gtk20 gtkmm24 pango
+USE_GNOME=	atk cairo gdkpixbuf gtk20 gtkmm24 pango
 USE_QT=		core gui svg widgets x11extras xml buildtools:build linguisttools:build qmake:build
 #USE_QT=		base svg tools:build # for Qt6
 

@@ -1,20 +1,20 @@
 PORTNAME=	highlight
-PORTVERSION=	4.10
+DISTVERSION=	4.16
+PORTREVISION=	1
 PORTEPOCH=	3
 CATEGORIES=	textproc
-MASTER_SITES=	http://www.andre-simon.de/zip/
+MASTER_SITES=	http://andre-simon.de/zip/
 
-MAINTAINER=	kwm@FreeBSD.org
+MAINTAINER=	mew14930xvi@inbox.lv
 COMMENT=	Customizable syntax highlighter
-WWW=		http://www.andre-simon.de/
+WWW=		http://andre-simon.de/
 
 LICENSE=	GPLv3
 LICENSE_FILE=	${WRKSRC}/COPYING
 
 BUILD_DEPENDS=	${LOCALBASE}/include/boost/scoped_array.hpp:devel/boost-libs
 
-USES=		compiler:c++11-lib gmake lua pkgconfig tar:bzip2
-USE_CXXSTD=	c++11
+USES=		gmake lua pkgconfig tar:bzip2
 MAKEFILE=	makefile
 MAKE_ARGS=	CXX="${CXX}" \
 		CFLAGS="${CXXFLAGS} ${CPPFLAGS} -DHAVE_DECL_GETOPT" \
@@ -27,8 +27,8 @@ PORTDOCS=	*
 OPTIONS_DEFINE=	DOCS GUI
 OPTIONS_SUB=	yes
 
-GUI_USES=	qt:5
-GUI_USE=	QT=buildtools:build,qmake:build,core,gui,widgets
+GUI_USES=	gl qt:6,qmake
+GUI_USE=	GL=opengl QT=tools:build,base
 GUI_MAKE_ENV=	QMAKE="${QMAKE}"
 GUI_ALL_TARGET=	gui
 GUI_INSTALL_TARGET=	install-gui

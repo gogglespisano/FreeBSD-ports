@@ -39,7 +39,6 @@ share/icons/hicolor/scalable/actions/rocsselect.svgz
 share/icons/hicolor/scalable/actions/rocsunidirectional.svgz
 share/icons/hicolor/scalable/actions/rocsvisible.svgz
 share/icons/hicolor/scalable/apps/rocs.svgz
-share/kxmlgui5/rocs/rocsui.rc
 share/locale/ar/LC_MESSAGES/libgraphtheory.mo
 share/locale/ar/LC_MESSAGES/rocs.mo
 share/locale/bg/LC_MESSAGES/libgraphtheory.mo
@@ -66,6 +65,8 @@ share/locale/es/LC_MESSAGES/libgraphtheory.mo
 share/locale/es/LC_MESSAGES/rocs.mo
 share/locale/et/LC_MESSAGES/libgraphtheory.mo
 share/locale/et/LC_MESSAGES/rocs.mo
+share/locale/eu/LC_MESSAGES/libgraphtheory.mo
+share/locale/eu/LC_MESSAGES/rocs.mo
 share/locale/fi/LC_MESSAGES/libgraphtheory.mo
 share/locale/fi/LC_MESSAGES/rocs.mo
 share/locale/fr/LC_MESSAGES/libgraphtheory.mo

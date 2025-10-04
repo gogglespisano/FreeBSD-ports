@@ -1,9 +1,9 @@
---- src/3rdparty/chromium/ui/color/color_id.h.orig	2023-04-05 11:05:06 UTC
+--- src/3rdparty/chromium/ui/color/color_id.h.orig	2024-10-22 08:31:56 UTC
 +++ src/3rdparty/chromium/ui/color/color_id.h
-@@ -435,7 +435,7 @@
-   E_CPONLY(kColorNativeColor6) \
-   E_CPONLY(kColorNativeBaseColor) \
-   E_CPONLY(kColorNativeSecondaryColor)
+@@ -622,7 +622,7 @@
+   \
+   E_CPONLY(kColorCrosSysPositive) \
+   E_CPONLY(kColorCrosSysComplementVariant)
 -#elif BUILDFLAG(IS_LINUX)
 +#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_BSD)
  #define PLATFORM_SPECIFIC_COLOR_IDS \

@@ -40,4 +40,7 @@ OPTIONS_DEFINE=	DOCS
 CONFIGURE_ARGS+=--disable-threads
 .endif
 
+post-install:
+	${RMDIR} ${STAGEDIR}${PREFIX}/lib/gettext
+
 .include <bsd.port.mk>

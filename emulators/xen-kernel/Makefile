@@ -1,11 +1,11 @@
 PORTNAME=	xen
 PKGNAMESUFFIX=	-kernel
-DISTVERSION=	4.17.2.20230929
+DISTVERSION=	4.19.1.20250217
 CATEGORIES=	emulators
 
 USE_GITLAB=	yes
 GL_ACCOUNT=	xen-project
-GL_TAGNAME=	0b56bed864ca9b572473957f0254aefa797216f2
+GL_TAGNAME=	93302bb88855c5f308f1e67ac2cd84271aa2d73a
 
 MAINTAINER=	royger@FreeBSD.org
 COMMENT=	Hypervisor using a microkernel design
@@ -28,10 +28,6 @@ PLIST_FILES=	/boot/xen \
 		lib/debug/boot/xen.debug \
 		lib/debug/boot/xen-debug.debug
 
-# Support for fetching video mode for PVH dom0
-EXTRA_PATCHES+=	${PATCHDIR}/0001-x86-platform-introduce-hypercall-to-get-initial-vide.patch:-p1 \
-		${PATCHDIR}/0001-x86-platform-make-XENPF_get_dom0_console-actually-us.patch:-p1
-
 .include <bsd.port.options.mk>
 
 .if ${OPSYS} != FreeBSD
@@ -43,10 +39,12 @@ IGNORE=		only supported on FreeBSD
 #
 # Build both a production and a debug hypervisor.
 do-build:
-	${MAKE_CMD} -j${MAKE_JOBS_NUMBER} -C ${WRKSRC} build-xen ${MAKE_ARGS} debug=y
+	${ECHO} "CONFIG_DEBUG=y" > ${WRKSRC}/xen/.config
+	${MAKE_CMD} -C ${WRKSRC}/xen olddefconfig ${MAKE_ARGS}
+	${MAKE_CMD} -j${MAKE_JOBS_NUMBER} -C ${WRKSRC} build-xen ${MAKE_ARGS}
 	cp ${WRKSRC}/xen/xen ${WRKSRC}/xen/xen-debug
 	cp ${WRKSRC}/xen/xen-syms ${WRKSRC}/xen/xen-debug-syms
-	${MAKE_CMD} -j${MAKE_JOBS_NUMBER} -C ${WRKSRC} clean-xen ${MAKE_ARGS}
+	${MAKE_CMD} -j${MAKE_JOBS_NUMBER} -C ${WRKSRC} distclean-xen ${MAKE_ARGS}
 	${MAKE_CMD} -j${MAKE_JOBS_NUMBER} -C ${WRKSRC} build-xen ${MAKE_ARGS}
 
 do-install:

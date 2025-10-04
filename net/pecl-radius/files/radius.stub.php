@@ -36,3 +36,4 @@ function radius_request_authenticator(RadiusHandle $h): string|false {}
 function radius_server_secret(RadiusHandle $h): string|false {}
 function radius_demangle(RadiusHandle $h, string $mangled): string|false {}
 function radius_demangle_mppe_key(RadiusHandle $h, string $mangled): string|false {}
+

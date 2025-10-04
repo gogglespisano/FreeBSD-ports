@@ -1,3 +1,5 @@
-TIMESTAMP = 1696578227
-SHA256 (gnutls-3.7.10.tar.xz) = b6e4e8bac3a950a3a1b7bdb0904979d4ab420a81e74de8636dd50b467d36f5a9
-SIZE (gnutls-3.7.10.tar.xz) = 6407852
+TIMESTAMP = 1752249814
+SHA256 (gnutls-3.8.10.tar.xz) = db7fab7cce791e7727ebbef2334301c821d79a550ec55c9ef096b610b03eb6b7
+SIZE (gnutls-3.8.10.tar.xz) = 6909856
+SHA256 (ktls_utils.h) = e41d33289c63573c59d2d02b4110a2f63651add28001031e6dc20327d096b734
+SIZE (ktls_utils.h) = 1983

@@ -1,5 +1,6 @@
 PORTNAME=	emu64
 DISTVERSION=	5.1.0
+PORTREVISION=	1
 CATEGORIES=	emulators
 
 MAINTAINER=	zirias@FreeBSD.org
@@ -25,5 +26,9 @@ USE_GITHUB=	yes
 GH_ACCOUNT=	ThKattanek
 
 OPTIONS_DEFINE=	DOCS
+
+.if !exists(/usr/include/omp.h)
+USE_GCC=	yes
+.endif
 
 .include <bsd.port.mk>

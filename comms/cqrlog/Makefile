@@ -1,6 +1,6 @@
 PORTNAME=	cqrlog
 PORTVERSION=	2.5.2
-PORTREVISION=	5
+PORTREVISION=	16
 DISTVERSIONPREFIX=	v
 CATEGORIES=	comms hamradio
 PKGNAMESUFFIX=	${LAZARUS_PKGNAMESUFFIX}
@@ -12,6 +12,8 @@ WWW=		https://www.cqrlog.com/
 LICENSE=	GPLv2
 
 LIB_DEPENDS=	libhamlib.so:comms/hamlib
+
+ONLY_FOR_ARCHS=	amd64 i386
 
 USES=		fpc gnome lazarus:flavors shebangfix ssl:run dos2unix \
 		mysql:server xorg
@@ -35,8 +37,9 @@ NO_LAZBUILD=	yes
 LAZBUILD_ARGS=	-d --pcp=.
 DOS2UNIX_WRKSRC=${WRKSRC}/src/synapse/
 
-gtk2_CONFLICTS_INSTALL=	${PORTNAME}-qt5
-qt5_CONFLICTS_INSTALL=	${PORTNAME}-gtk2
+gtk2_CONFLICTS_INSTALL=	${PORTNAME}-qt5 ${PORTNAME}-qt6
+qt5_CONFLICTS_INSTALL=	${PORTNAME}-gtk2 ${PORTNAME}-qt6
+qt6_CONFLICTS_INSTALL=	${PORTNAME}-gtk2 ${PORTNAME}-qt5
 
 post-extract:
 	@${RM} -r ${WRKSRC}/src/lnet/lib/openssl.pas
@@ -56,6 +59,10 @@ post-patch:
 		${WRKSRC}/src/fTRXControl.pas ${WRKSRC}/src/fPreferences.lfm
 	${REINPLACE_CMD} -e s!%%DATADIR%%!${DATADIR}!g \
 		${WRKSRC}/src/dData.pas ${WRKSRC}/src/fGrayline.pas
+	${REINPLACE_CMD} -e 's|ifdef LCLQT5|if defined\(LCLQT5\) or defined\(LCLQT6\)|g' \
+		${WRKSRC}/src/lnet/lib/lclnet.pas
+	${REINPLACE_CMD} -e 's|unixutil|Unix|g' -e 's|UnixUtil|Unix|g' \
+		${WRKSRC}/src/lnet/lib/lcommon.pp
 
 post-build:
 	@${RM} ${WRKSRC}/help/cwd.html.*

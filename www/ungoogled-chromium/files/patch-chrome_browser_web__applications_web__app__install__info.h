@@ -1,11 +1,11 @@
---- chrome/browser/web_applications/web_app_install_info.h.orig	2023-11-04 07:08:51 UTC
+--- chrome/browser/web_applications/web_app_install_info.h.orig	2025-02-20 09:59:21 UTC
 +++ chrome/browser/web_applications/web_app_install_info.h
-@@ -36,7 +36,7 @@
+@@ -38,7 +38,7 @@
  #include "url/gurl.h"
  
  static_assert(BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
--              BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA));
-+              BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_BSD));
+-              BUILDFLAG(IS_CHROMEOS));
++              BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_BSD));
  
- class SkBitmap;
+ namespace web_app {
  

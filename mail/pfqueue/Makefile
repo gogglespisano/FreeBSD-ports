@@ -1,6 +1,6 @@
 PORTNAME=	pfqueue
 PORTVERSION=	0.5.6
-PORTREVISION=	1
+PORTREVISION=	2
 CATEGORIES=	mail
 MASTER_SITES=	SF
 
@@ -15,13 +15,14 @@ USES=		libtool ncurses
 USE_LDCONFIG=	yes
 
 GNU_CONFIGURE=	yes
+GNU_CONFIGURE_MANPREFIX=${PREFIX}/share
 CONFIGURE_ARGS=	--disable-static
 
 INSTALL_TARGET=	install-strip
 
 .include <bsd.port.pre.mk>
 
-.if ${OPSYS} == FreeBSD && ( ${OSVERSION} >= 1400079 || ( ${OSVERSION} >= 1302505 && ${OSVERSION} < 1400000 ))
+.if ${OPSYS} == FreeBSD
 CFLAGS+=	-Wno-error=int-conversion
 .endif
 

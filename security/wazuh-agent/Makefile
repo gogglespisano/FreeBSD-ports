@@ -1,8 +1,8 @@
 PORTNAME=	wazuh
-DISTVERSION=	4.6.0
+DISTVERSION=	4.12.0
 DISTVERSIONPREFIX=	v
 CATEGORIES=	security
-MASTER_SITES=	https://packages.wazuh.com/deps/22/libraries/sources/:wazuh_sources
+MASTER_SITES=	https://packages.wazuh.com/deps/40/libraries/sources/:wazuh_sources
 PKGNAMESUFFIX=	-agent
 DISTFILES=	${EXTERNAL_DISTFILES}
 DIST_SUBDIR=	${PORTNAME}-${DISTVERSION}
@@ -15,15 +15,19 @@ WWW=		https://github.com/wazuh/wazuh
 LICENSE=	GPLv2
 LICENSE_FILE=	${WRKSRC}/LICENSE
 
-BUILD_DEPENDS=	cmake:devel/cmake-core
 LIB_DEPENDS=	libnghttp2.so:www/libnghttp2
 
-USES=		cpe gmake perl5 readline shebangfix sqlite:3 uidfix
+USES=		cmake:indirect cpe gmake perl5 readline shebangfix sqlite:3 uidfix
 
 USE_GITHUB=	yes
+GH_TUPLE=	alonsobsd:wazuh-freebsd:${WAZUH_EXTRAFILE_TAGNAME}:wazuh
+
 USE_RC_SUBR=	${PORTNAME}${PKGNAMESUFFIX}
 
 MAKE_ARGS+=	TARGET=agent
+
+WAZUH_EXTRAFILE=	alonsobsd-${PORTNAME}-freebsd-${WAZUH_EXTRAFILE_TAGNAME}_GH0${EXTRACT_SUFX}
+WAZUH_EXTRAFILE_TAGNAME=cd0051b
 
 EXTERNAL_DISTFILES=	cJSON.tar.gz:wazuh_sources \
 			curl.tar.gz:wazuh_sources \
@@ -88,14 +92,28 @@ WAZUHPREFIX=	/var/ossec
 
 .include <bsd.port.pre.mk>
 
+.if ${OSVERSION} >= 1300139 && ${OSVERSION} < 1400000
+FBSD_MAJOR_VERSION=13
+.elif ${OSVERSION} >= 1400000 && ${OSVERSION} < 1500000
+FBSD_MAJOR_VERSION=14
+.elif ${OSVERSION} >= 1500000
+FBSD_MAJOR_VERSION=15
+.else
+IGNORE=		FreeBSD ${OSVERSION} ${ARCH} is not supported
+.endif
+
 post-extract:
 .for FILE in ${EXTERNAL_DISTFILES}
 	@cd ${WRKSRC}/src/external && ${EXTRACT_CMD} ${EXTRACT_BEFORE_ARGS} ${_DISTDIR}/${FILE:S/:wazuh_sources//} ${EXTRACT_AFTER_ARGS}
 .endfor
+	@${MKDIR} ${WRKSRC}/ruleset/sca/freebsd
+	@cd ${WRKDIR} && ${EXTRACT_CMD} ${EXTRACT_BEFORE_ARGS} ${_DISTDIR}/${WAZUH_EXTRAFILE} ${EXTRACT_AFTER_ARGS}
+	@${MV} ${WRKDIR}/${PORTNAME}-freebsd-${WAZUH_EXTRAFILE_TAGNAME} ${WRKDIR}/wazuh-freebsd
+	@cd ${WRKDIR}/wazuh-freebsd/var/ossec/ruleset/sca && ${CP} *.yml ${WRKSRC}/ruleset/sca/freebsd/
 
 post-patch:
-	${REINPLACE_CMD} -e 's|HOST_NAME_MAX|_POSIX_HOST_NAME_MAX|g' ${WRKSRC}/src/wazuh_modules/wm_database.c
 	${REINPLACE_CMD} -e 's|CC=|CC?=|g' -e 's|AR=|AR?=|g' ${WRKSRC}/src/external/bzip2/Makefile
+	${REINPLACE_CMD} -e 's|%%FBSD_MAJOR_VERSION%%|${FBSD_MAJOR_VERSION}|g' ${WRKSRC}/etc/ossec-agent.conf
 
 do-build:
 	cd ${WRKSRC}/src/ && ${SETENV} ${MAKE_ENV} STAGEDIR=${STAGEDIR} \
@@ -124,7 +142,7 @@ do-install:
 
 	${INSTALL_DATA} ${WRKSRC}/etc/internal_options.conf ${STAGEDIR}${WAZUHPREFIX}/etc
 	${INSTALL_DATA} ${WRKSRC}/src/wazuh_modules/syscollector/norm_config.json ${STAGEDIR}${WAZUHPREFIX}/queue/syscollector
-	${INSTALL_DATA} ${WRKSRC}/etc/local_internal_options.conf ${STAGEDIR}${WAZUHPREFIX}/etc/local_internal_options.conf
+	${INSTALL_DATA} ${WRKSRC}/etc/local_internal_options.conf ${STAGEDIR}${WAZUHPREFIX}/etc/local_internal_options.conf.sample
 
 	${INSTALL_DATA} /dev/null ${STAGEDIR}${WAZUHPREFIX}/etc/client.keys.sample
 	${INSTALL_DATA} ${WRKSRC}/etc/wpk_root.pem ${STAGEDIR}${WAZUHPREFIX}/etc/
@@ -167,9 +185,8 @@ do-install:
 
 	${INSTALL_SCRIPT} ${WRKSRC}/wodles/azure/azure-logs.py ${STAGEDIR}${WAZUHPREFIX}/wodles/azure/azure-logs.py
 	${INSTALL_SCRIPT} ${WRKSRC}/framework/wrappers/generic_wrapper.sh ${STAGEDIR}${WAZUHPREFIX}/wodles/azure/azure-logs
-	${INSTALL_SCRIPT} ${WRKSRC}/wodles/azure/orm.py ${STAGEDIR}${WAZUHPREFIX}/wodles/azure/orm.py
 
-	${INSTALL_DATA} ${WRKSRC}/ruleset/sca/generic/sca_unix_audit.yml ${STAGEDIR}${WAZUHPREFIX}/ruleset/sca/
+	${INSTALL_DATA} ${WRKSRC}/ruleset/sca/generic/sca_distro_independent_linux.yml ${STAGEDIR}${WAZUHPREFIX}/ruleset/sca/
 
 	${INSTALL_LIB} ${WRKSRC}/src/libwazuhext.so ${STAGEDIR}${WAZUHPREFIX}/lib
 	${INSTALL_LIB} ${WRKSRC}/src/libwazuhshared.so ${STAGEDIR}${WAZUHPREFIX}/lib
@@ -191,5 +208,7 @@ do-install:
 
 	${INSTALL_SCRIPT} ${WRKSRC}/gen_ossec.sh ${STAGEDIR}${WAZUHPREFIX}/packages_files/agent_installation_scripts/
 	${INSTALL_SCRIPT} ${WRKSRC}/add_localfiles.sh ${STAGEDIR}${WAZUHPREFIX}/packages_files/agent_installation_scripts/
+
+	${INSTALL_DATA} ${WRKSRC}/VERSION.json ${STAGEDIR}${WAZUHPREFIX}
 
 .include <bsd.port.post.mk>

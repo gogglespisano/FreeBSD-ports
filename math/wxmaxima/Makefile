@@ -1,9 +1,10 @@
 PORTNAME=	wxmaxima
-PORTVERSION=	23.10.0
 DISTVERSIONPREFIX=	Version-
+DISTVERSION=	25.04.0
+PORTEPOCH=	1
 CATEGORIES=	math
 
-MAINTAINER=	salvadore@FreeBSD.org
+MAINTAINER=	tiago.gasiba@gmail.com
 COMMENT=	WxWidgets GUI for the computer algebra system maxima
 WWW=		https://wxmaxima-developers.github.io/wxmaxima/
 

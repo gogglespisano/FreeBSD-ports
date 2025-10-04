@@ -1,9 +1,9 @@
---- third_party/blink/renderer/core/inspector/inspector_memory_agent.cc.orig	2023-11-04 07:08:51 UTC
+--- third_party/blink/renderer/core/inspector/inspector_memory_agent.cc.orig	2025-03-09 21:38:10 UTC
 +++ third_party/blink/renderer/core/inspector/inspector_memory_agent.cc
-@@ -190,7 +190,7 @@ InspectorMemoryAgent::GetSamplingProfileById(uint32_t 
+@@ -192,7 +192,7 @@ InspectorMemoryAgent::GetSamplingProfileById(uint32_t 
  
  Vector<String> InspectorMemoryAgent::Symbolize(
-     const WebVector<const void*>& addresses) {
+     const std::vector<const void*>& addresses) {
 -#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
 +#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_BSD)
    // TODO(alph): Move symbolization to the client.

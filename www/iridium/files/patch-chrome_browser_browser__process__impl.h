@@ -1,11 +1,11 @@
---- chrome/browser/browser_process_impl.h.orig	2023-10-21 11:51:27 UTC
+--- chrome/browser/browser_process_impl.h.orig	2025-09-11 13:19:19 UTC
 +++ chrome/browser/browser_process_impl.h
-@@ -382,7 +382,7 @@ class BrowserProcessImpl : public BrowserProcess,
+@@ -414,7 +414,7 @@ class BrowserProcessImpl : public BrowserProcess,
  
- // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
- // of lacros-chrome is complete.
--#if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS))
-+#if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS)) || BUILDFLAG(IS_BSD)
+   std::unique_ptr<BatteryMetrics> battery_metrics_;
+ 
+-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
++#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_BSD)
    base::RepeatingTimer autoupdate_timer_;
  
    // Gets called by autoupdate timer to see if browser needs restart and can be

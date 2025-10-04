@@ -1,7 +1,7 @@
 PORTNAME=	gpsim
 DISTVERSION=	0.32.1
 CATEGORIES=	misc
-MASTER_SITES=	SF
+MASTER_SITES=	https://download.sourceforge.net/project/gpsim/gpsim/0.32.0/ # SF
 
 MAINTAINER=	yuri@FreeBSD.org
 COMMENT=	Software simulator for Microchip PIC microcontrollers
@@ -19,7 +19,7 @@ RUN_DEPENDS=	gpasm:devel/gputils
 
 USES=		compiler:c++11-lang gmake gnome libtool localbase:ldflags pathfix pkgconfig readline
 USE_CXXSTD=	c++11
-USE_GNOME=	cairo gdkpixbuf2 glib20 gtk20 pango
+USE_GNOME=	cairo gdkpixbuf glib20 gtk20 pango
 USE_LDCONFIG=	yes
 
 GNU_CONFIGURE=	yes

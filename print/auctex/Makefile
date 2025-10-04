@@ -1,6 +1,6 @@
 PORTNAME=	auctex
-PORTVERSION=	13.2
-PORTREVISION=	1
+DISTVERSION=	13.3
+PORTREVISION=	2
 CATEGORIES=	print elisp
 MASTER_SITES=	GNU
 PKGNAMESUFFIX=	${EMACS_PKGNAMESUFFIX}
@@ -10,10 +10,7 @@ COMMENT=	Integrated environment for writing LaTeX using GNU Emacs
 WWW=		https://www.gnu.org/software/auctex/
 
 LICENSE=	GPLv3
-
-.if ${FLAVOR:U} == devel_full || ${FLAVOR:U} == devel_nox
-BROKEN=		tex.el:0:0: error: wrong-type-argument: (stringp nil)
-.endif
+LICENSE_FILE=	${WRKSRC}/COPYING
 
 USES=		emacs ghostscript gmake tex
 USE_TEX=	latex texhash

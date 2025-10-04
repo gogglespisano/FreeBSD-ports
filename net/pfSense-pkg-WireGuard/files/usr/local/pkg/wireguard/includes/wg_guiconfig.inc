@@ -27,10 +27,8 @@ require_once('wireguard/includes/wg.inc');
 require_once('wireguard/includes/wg_globals.inc');
 
 function wg_print_service_warning($only_with_tunnels = true) {
-	global $wgg;
-
 	if (!wg_is_service_running() 
-	    && (!$only_with_tunnels || count($wgg['tunnels']) > 0)) {
+	    && (!$only_with_tunnels || count(config_get_path('installedpackages/wireguard/tunnels/item', [])) > 0)) {
 		print_info_box(gettext('The WireGuard service is not running.'), 'danger', null);
 	}
 }
@@ -66,8 +64,6 @@ function wg_format_endpoint($header = true, $peer = null, $endpoint_key = 'endpo
 
 // Gets a list of available tunnels in a format suitable for input selection boxes
 function wg_get_tun_list() {
-	global $config, $wgg;
-
 	// Format tunnel description if one is configured
 	$tunDescr = fn($tunnel) => !empty($tunnel['descr']) ? " ({$tunnel['descr']})" : null;
 
@@ -76,10 +72,8 @@ function wg_get_tun_list() {
 	// Always include the unassigned option first
 	$a_ret['unassigned'] = 'Unassigned';
 
-	if (is_array($wgg['tunnels'])) {
-		foreach ($wgg['tunnels'] as $tunnel) {
-			$a_ret[$tunnel['name']] = "{$tunnel['name']}{$tunDescr($tunnel)}";	
-		}
+	foreach (config_get_path('installedpackages/wireguard/tunnels/item', []) as $tunnel) {
+		$a_ret[$tunnel['name']] = "{$tunnel['name']}{$tunDescr($tunnel)}";	
 	}
 
 	// Consumers of this function always expect an array type
@@ -95,7 +89,7 @@ function wg_truncate_pretty($text, $max_length) {
 	return "{$s_truncated}{$s_pretty_dots}";
 }
 
-function wg_interface_status_icon($status = 'up', $enabled_class = "fa fa-arrow-up text-success", $disabled_class = "fa fa-arrow-down text-danger") {
+function wg_interface_status_icon($status = 'up', $enabled_class = "fa-solid fa-arrow-up text-success", $disabled_class = "fa-solid fa-arrow-down text-danger") {
 	global $wgg;
 
 	$s = fn($x) => $x;
@@ -112,7 +106,7 @@ function wg_interface_status_icon($status = 'up', $enabled_class = "fa fa-arrow-
  * 
  * $latest_handshake should be format compatible with DateTime
  */
-function wg_handshake_status_icon($latest_handshake = '@0', $tunnel_status = 'up', $fa_icon = "fa-handshake") {
+function wg_handshake_status_icon($latest_handshake = '@0', $tunnel_status = 'up', $fa_icon = "fa-solid fa-handshake") {
 	global $wgg;
 
 	$s = fn($x) => $x;
@@ -139,7 +133,7 @@ function wg_handshake_status_icon($latest_handshake = '@0', $tunnel_status = 'up
 		}
 	}
 
-	$ret_html = "<i class=\"fa {$s(htmlspecialchars($fa_icon))} {$s(htmlspecialchars($ret_class))}\" style=\"vertical-align: middle;\" title=\"{$s(htmlspecialchars($ret_title))}\"></i>";
+	$ret_html = "<i class=\"fa-solid {$s(htmlspecialchars($fa_icon))} {$s(htmlspecialchars($ret_class))}\" style=\"vertical-align: middle;\" title=\"{$s(htmlspecialchars($ret_title))}\"></i>";
 
 	return $ret_html;
 }
@@ -202,14 +196,12 @@ function wg_human_time_diff($start, $end = null, $num_units = 2, $from_epoch = f
 
 // Returns the appropriate text input field type for secrets
 function wg_secret_input_type() {
-	global $wgg;
-
 	wg_globals();
 
 	$type = 'text';
 
-	if (isset($wgg['config']['hide_secrets'])
-	    && $wgg['config']['hide_secrets'] =='yes') {
+	if ((config_get_path('installedpackages/wireguard/config/0/hide_secrets') !== null)
+	    && config_get_path('installedpackages/wireguard/config/0/hide_secrets') == 'yes') {
 		$type = 'password';
 	}
 
@@ -218,11 +210,9 @@ function wg_secret_input_type() {
 
 // Returns bool indicating if peers should be hidden on status page on load
 function wg_status_peers_hidden() {
-	global $wgg;
-
 	wg_globals();
 
-	return ($wgg['config']['hide_peers'] === 'yes');
+	return (config_get_path('installedpackages/wireguard/config/0/hide_peers') === 'yes');
 }
 
 function wg_tunnel_status_class($tunnel = null) {
@@ -257,7 +247,7 @@ function wg_peer_status_class($peer = null) {
 }
 
 // Generates a toggle icon link based on the status of the target
-function wg_generate_toggle_icon_link($enabled = true, $type = null, $href = '#', $post = true, $icon_enabled = 'fa-ban', $icon_disabled = 'fa-check-square-o') {
+function wg_generate_toggle_icon_link($enabled = true, $type = null, $href = '#', $post = true, $icon_enabled = 'fa-ban', $icon_disabled = 'fa-regular fa-square-check') {
 	$s = fn($x) => $x;
 	
 	$icon = $enabled ? $icon_enabled : $icon_disabled;
@@ -268,7 +258,7 @@ function wg_generate_toggle_icon_link($enabled = true, $type = null, $href = '#'
 
 	$usepost = $post ? ' usepost' : null;
 
-	return "<a class=\"fa {$s(htmlspecialchars($icon))}\" title=\"{$s(htmlspecialchars($title))}\" href=\"{$s(htmlspecialchars($href))}\"{$s(htmlspecialchars($usepost))}></a>";
+	return "<a class=\"fa-solid {$s(htmlspecialchars($icon))}\" title=\"{$s(htmlspecialchars($title))}\" href=\"{$s(htmlspecialchars($href))}\"{$s(htmlspecialchars($usepost))}></a>";
 }
 
 function wg_compose_address_popover_link($addresses, $title, $href) {
@@ -342,7 +332,7 @@ function wg_generate_tunnel_address_popover_link($tunnel_name) {
 			$wg_pfsense_if = wg_get_pfsense_interface_info($tunnel['name']);
 
 			$ret_html = 	<<<"RET"
-					<i class="fa fa-sitemap" style="vertical-align: middle;"></i>
+					<i class="fa-solid fa-sitemap" style="vertical-align: middle;"></i>
 					<a style="padding-left: 3px" href="../../interfaces.php?if={$s(htmlspecialchars($wg_pfsense_if['name']))}">{$s(htmlspecialchars($wg_pfsense_if['descr']))} ({$s(htmlspecialchars($wg_pfsense_if['name']))})</a>
 					
 					RET;

@@ -178,7 +178,7 @@ if (!empty($a_devices)):
 				</tr>
 <?php
 	endforeach;
-elseif (empty($wgg['tunnels'])):
+elseif (empty(config_get_path('installedpackages/wireguard/tunnels/item'))):
 ?>
 				<tr>
 					<td colspan="9"><?php print_info_box(gettext('No WireGuard tunnels have been configured.'), 'warning', null); ?></td>
@@ -233,8 +233,8 @@ endif;
 //<![CDATA[
 events.push(function() {
 	$('.tree').treegrid({
-		expanderExpandedClass: 'fa fa fa-chevron-down',
-		expanderCollapsedClass: 'fa fa fa-chevron-right',
+		expanderExpandedClass: 'fa-solid fa fa-chevron-down',
+		expanderCollapsedClass: 'fa-solid fa fa-chevron-right',
 		initialState: (<?=json_encode($peers_hidden)?> ? 'collapsed' : 'expanded')
 	});
 });

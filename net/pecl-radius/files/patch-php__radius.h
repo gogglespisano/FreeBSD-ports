@@ -1,14 +1,5 @@
 --- php_radius.h.orig	2016-02-15 15:11:50 UTC
 +++ php_radius.h
-@@ -39,7 +39,7 @@ any other GPL-like (LGPL, GPL2) License.
- 
- #define phpext_radius_ptr &radius_module_entry
- 
--#define PHP_RADIUS_VERSION "1.4.0b1"
-+#define PHP_RADIUS_VERSION "1.3.0"
- 
- #ifdef PHP_WIN32
- #define PHP_RADIUS_API __declspec(dllexport)
 @@ -53,6 +53,26 @@ any other GPL-like (LGPL, GPL2) License.
  
  extern zend_module_entry radius_module_entry;
@@ -51,3 +42,4 @@
 - */
 -
 -/* vim: set ts=8 sw=8 noet: */
+

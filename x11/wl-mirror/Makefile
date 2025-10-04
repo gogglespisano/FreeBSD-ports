@@ -1,6 +1,6 @@
 PORTNAME=	wl-mirror
 DISTVERSIONPREFIX=	v
-DISTVERSION=	0.14.2
+DISTVERSION=	0.18.3
 CATEGORIES=	x11 wayland
 
 MAINTAINER=	jbeich@FreeBSD.org
@@ -9,8 +9,6 @@ WWW=		https://github.com/Ferdi265/wl-mirror
 
 LICENSE=	GPLv3+
 LICENSE_FILE=	${WRKSRC}/LICENSE
-
-BROKEN_FreeBSD_12=	ld: error: undefined symbol: memfd_create
 
 BUILD_DEPENDS=	wayland-protocols>0:graphics/wayland-protocols
 LIB_DEPENDS=	libepoll-shim.so:devel/libepoll-shim \
@@ -21,15 +19,23 @@ USE_GITHUB=	yes
 USE_GITLAB=	nodefault
 USE_GL=		glesv2 egl
 GH_ACCOUNT=	Ferdi265
-GL_TUPLE=	https://gitlab.freedesktop.org:wlroots:wlr-protocols:8cdeaac:wlrproto/proto/wlr-protocols
+GL_TUPLE=	https://gitlab.freedesktop.org:wlroots:wlr-protocols:4264185:wlrproto/proto/wlr-protocols
 PLIST_FILES=	bin/${PORTNAME}
 
-OPTIONS_DEFINE=	MANPAGES
-OPTIONS_DEFAULT=MANPAGES
+OPTIONS_DEFINE=	CSD MANPAGES OPENGL
+OPTIONS_DEFAULT=CSD MANPAGES OPENGL
+
+CSD_DESC=		Client-side decorations via libdecor
+CSD_LIB_DEPENDS=	libdecor-0.so:x11-toolkits/libdecor
+CSD_CMAKE_BOOL=		WITH_LIBDECOR
 
 MANPAGES_BUILD_DEPENDS=	scdoc:textproc/scdoc
 MANPAGES_CMAKE_BOOL=	INSTALL_DOCUMENTATION
 MANPAGES_PLIST_FILES=	share/man/man1/${PORTNAME}.1.gz
+
+OPENGL_LIB_DEPENDS=	libdrm.so:graphics/libdrm
+OPENGL_USE=		GL=gbm
+OPENGL_CMAKE_BOOL=	WITH_GBM
 
 post-patch:
 	@${ECHO_CMD} "${DISTVERSIONFULL}" >${WRKSRC}/version.txt

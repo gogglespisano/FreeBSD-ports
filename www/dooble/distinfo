@@ -1,5 +1,5 @@
-TIMESTAMP = 1698972535
-SHA256 (textbrowser-dooble-2023.08.30_GH0.tar.gz) = d430cbc8fcbe7627d7494bd995d7e88beb728cd94bf4d3039cb3718e685391a7
-SIZE (textbrowser-dooble-2023.08.30_GH0.tar.gz) = 90239922
-SHA256 (95c0d3277d714ea1dba658ff4433bde3eb29ef76.patch) = 44f46c147340cd0e883cda35b714e1ecb68535fd569c70052f1e57e5fba67705
-SIZE (95c0d3277d714ea1dba658ff4433bde3eb29ef76.patch) = 904
+TIMESTAMP = 1752895861
+SHA256 (textbrowser-dooble-2025.07.18_GH0.tar.gz) = edd0b21b3cf579dee136e0b7ebd37fc451f434a02b972bbc033fadf7086603f7
+SIZE (textbrowser-dooble-2025.07.18_GH0.tar.gz) = 6508104
+SHA256 (textbrowser-dooble-dictionaries-0f1e715_GH0.tar.gz) = 474b2fd45429ed4cf68347dedd2c47650310d7e53a23cbeb8452655f596dc80c
+SIZE (textbrowser-dooble-dictionaries-0f1e715_GH0.tar.gz) = 34764866

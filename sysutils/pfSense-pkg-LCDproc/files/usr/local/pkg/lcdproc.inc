@@ -3,7 +3,7 @@
  * lcdproc.inc
  *
  * part of pfSense (http://www.pfsense.org/)
- * Copyright (c) 2015-2023 Rubicon Communications, LLC (Netgate)
+ * Copyright (c) 2015-2025 Rubicon Communications, LLC (Netgate)
  * Copyright (c) 2012 Michele Di Maria
  * Copyright (c) 2007-2009 Seth Mos <seth.mos@dds.nl>
  * All rights reserved.
@@ -736,7 +736,6 @@ EOD;
 }
 
 function set_lcd_value($fieldname, $max, $default_value) {
-	global $config;
 	$value = config_get_path("installedpackages/lcdproc/config/0/{$fieldname}");
 	$returnvalue = "";
 	if ($value != '' && $value != '-1') {

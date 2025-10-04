@@ -1,6 +1,6 @@
 PORTNAME=	openshot
 DISTVERSIONPREFIX=	v
-DISTVERSION=	3.1.1
+DISTVERSION=	3.3.0
 PORTREVISION=	1
 CATEGORIES=	multimedia
 
@@ -12,7 +12,7 @@ LICENSE=	GPLv3+
 LICENSE_FILE=	${WRKSRC}/COPYING
 
 BUILD_DEPENDS=	${RUN_DEPENDS}
-RUN_DEPENDS=	${PYTHON_PKGNAMEPREFIX}libopenshot>=0.3.2:multimedia/libopenshot@${PY_FLAVOR} \
+RUN_DEPENDS=	${PYTHON_PKGNAMEPREFIX}libopenshot>=0.3.3:multimedia/libopenshot@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}sentry-sdk>=0:devel/py-sentry-sdk@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}pyzmq>=0:net/py-pyzmq@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}distro>=0:sysutils/py-distro@${PY_FLAVOR} \
@@ -28,6 +28,7 @@ SHEBANG_FILES=	src/language/generate_translations.py\
 		src/language/show_translations.py\
 		src/language/test_translations.py
 NO_ARCH=	yes
+PLIST_SUB=	VERSION=${DISTVERSION:C/-.+//}
 
 OPTIONS_DEFINE=	DOCS
 OPTIONS_DEFAULT=

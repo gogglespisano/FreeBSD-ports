@@ -1,6 +1,6 @@
 PORTNAME=	wv
 PORTVERSION=	1.2.9
-PORTREVISION=	8
+PORTREVISION=	10
 CATEGORIES=	textproc
 MASTER_SITES=	http://www.abisource.com/downloads/wv/${PORTVERSION}/
 
@@ -21,6 +21,7 @@ USE_LDCONFIG=	yes
 USE_XORG=	x11
 
 GNU_CONFIGURE=	yes
+GNU_CONFIGURE_MANPREFIX=${PREFIX}/share
 CONFIGURE_ARGS=	--with-png=${LOCALBASE} \
 		--with-libwmf=${LOCALBASE}
 CONFIGURE_ENV=	MKDIR_P="${MKDIR}"
@@ -31,7 +32,7 @@ MAKE_ARGS+=	pkgconfigdir="${PREFIX}/libdata/pkgconfig" \
 
 .include <bsd.port.options.mk>
 
-.if ${OPSYS} == FreeBSD && ( ${OSVERSION} >= 1400091 || ( ${OSVERSION} >= 1302507 && ${OSVERSION} < 1400000 ))
+.if ${OPSYS} == FreeBSD
 CFLAGS+=	-Wno-error=incompatible-function-pointer-types
 .endif
 

@@ -1,32 +1,29 @@
---- gpu/command_buffer/service/shared_context_state.cc.orig	2023-11-22 14:00:11 UTC
+--- gpu/command_buffer/service/shared_context_state.cc.orig	2025-09-11 13:19:19 UTC
 +++ gpu/command_buffer/service/shared_context_state.cc
-@@ -4,6 +4,7 @@
+@@ -65,7 +65,7 @@
+ #include "gpu/vulkan/vulkan_implementation.h"
+ #include "gpu/vulkan/vulkan_util.h"
  
- #include "gpu/command_buffer/service/shared_context_state.h"
+-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_WIN)
++#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_BSD)
+ #include "gpu/command_buffer/service/external_semaphore_pool.h"
+ #endif
  
-+#include "base/immediate_crash.h"
- #include "base/observer_list.h"
- #include "base/strings/stringprintf.h"
- #include "base/system/sys_info.h"
-@@ -101,6 +102,13 @@ void SharedContextState::compileError(const char* shad
-                << "------------------------\n"
-                << shader << "\nErrors:\n"
-                << errors;
-+
-+    // Increase shader cache shm count and crash the GPU process so that the
-+    // browser process would clear the cache.
-+    GpuProcessShmCount::ScopedIncrement increment(
-+        use_shader_cache_shm_count_.get());
-+
-+    base::ImmediateCrash();
+@@ -304,7 +304,7 @@ SharedContextState::SharedContextState(
+   if (gr_context_type_ == GrContextType::kVulkan) {
+     if (vk_context_provider_) {
+ #if BUILDFLAG(ENABLE_VULKAN) && \
+-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_WIN))
++    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_BSD))
+       external_semaphore_pool_ = std::make_unique<ExternalSemaphorePool>(this);
+ #endif
+       use_virtualized_gl_contexts_ = false;
+@@ -341,7 +341,7 @@ SharedContextState::~SharedContextState() {
    }
- }
  
-@@ -305,6 +313,7 @@ bool SharedContextState::InitializeGanesh(
-     gl::ProgressReporter* progress_reporter) {
-   progress_reporter_ = progress_reporter;
-   gr_shader_cache_ = cache;
-+  use_shader_cache_shm_count_ = use_shader_cache_shm_count;
+ #if BUILDFLAG(ENABLE_VULKAN) && \
+-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_WIN))
++    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_BSD))
+   external_semaphore_pool_.reset();
+ #endif
  
-   size_t max_resource_cache_bytes;
-   size_t glyph_cache_max_texture_bytes;

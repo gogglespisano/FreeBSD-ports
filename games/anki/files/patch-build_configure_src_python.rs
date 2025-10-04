@@ -1,49 +1,43 @@
-Use the "PythonEnvironmentStub" function to use a native Python environment
-instead of Python venv.
+Depend on PYTHON_BINARY as well if OFFLINE_BUILD is used to let us specify the
+current Python interpreter that is used in the system.
 
-Avoid the use of Python's pip.
+Otherwise the build emits following error message during the creation of
+the Python wheels:
 
---- build/configure/src/python.rs.orig	2023-10-26 01:57:37 UTC
+[...]
+FAILED: /wrkdirs/usr/ports/games/anki/work/anki-25.07.2/out/wheels/aqt-25.7.2-py3-none-any.whl
+/wrkdirs/usr/ports/games/anki/work/anki-25.07.2/out/rust/release/runner run --env="UV_PROJECT_ENVIRONMENT=/wrkdirs/usr/ports/games/anki/work/anki-25.07.2/out/pyenv" --env="A
+NKI_WHEEL_TAG=py3-none-any" /usr/local/bin/uv build --wheel --out-dir=/wrkdirs/usr/ports/games/anki/work/anki-25.07.2/out/wheels/ --project=qt
+  × Failed to build `/wrkdirs/usr/ports/games/anki/work/anki-25.07.2/qt`
+    ╰─▶ No interpreter found for Python 3.13.5 in virtual environments, managed
+          installations, or search path
+          Failed with code Some(2): /usr/local/bin/uv build --wheel --out-dir=/wrkdirs/usr/ports/games/anki/work/anki-25.07.2/out/wheels/ --project=qt
+[...]
+
+The environment variables UV_NO_BUILD_ISOLATION=1 and UV_OFFLINE=1 are also
+required to run "uv" in offline mode and to make use of the Python packages
+outside of the pseudo-venv.
+
+--- build/configure/src/python.rs.orig	2025-07-07 16:49:54 UTC
 +++ build/configure/src/python.rs
-@@ -13,6 +13,7 @@ use ninja_gen::python::PythonEnvironment;
- use ninja_gen::inputs;
- use ninja_gen::python::python_format;
- use ninja_gen::python::PythonEnvironment;
-+use ninja_gen::python::PythonEnvironmentStub;
- use ninja_gen::python::PythonLint;
- use ninja_gen::python::PythonTypecheck;
- use ninja_gen::rsync::RsyncFiles;
-@@ -81,6 +82,25 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
-     Ok(())
- }
+@@ -119,11 +119,19 @@ impl BuildAction for BuildWheel {
  
-+pub fn setup_venv_stub(build: &mut Build) -> Result<()> {
-+    build.add_action(
-+        "pyenv",
-+        PythonEnvironmentStub {
-+            folder: "pyenv",
-+            extra_binary_exports: &[
-+                "mypy",
-+                "black",    // Required in some parts of the code, but not for build
-+                "isort",    // dito
-+                "pylint",   // dito
-+                "pytest",   // dito
-+                "protoc-gen-mypy",
-+            ],
-+        },
-+    )?;
-+
-+    Ok(())
-+}
-+
- pub struct GenPythonProto {
-     pub proto_files: BuildInput,
- }
-@@ -254,7 +274,6 @@ impl BuildAction for Sphinx {
+ impl BuildAction for BuildWheel {
+     fn command(&self) -> &str {
+-        "$uv build --wheel --out-dir=$out_dir --project=$project_dir"
++        if std::env::var("OFFLINE_BUILD").is_ok() && std::env::var("PYTHON_BINARY").is_ok() {
++            "$uv build --python=$python_binary --wheel --out-dir=$out_dir --project=$project_dir"
++        } else {
++            "$uv build --wheel --out-dir=$out_dir --project=$project_dir"
++        }
+     }
  
      fn files(&mut self, build: &mut impl FilesHandle) {
-         build.add_inputs("python", inputs![":pyenv:bin"]);
--        build.add_inputs("pip", inputs![":pyenv:pip"]);
-         build.add_inputs("", &self.deps);
-         build.add_output_stamp("python/sphinx/stamp");
-     }
+         if std::env::var("OFFLINE_BUILD").ok().as_deref() == Some("1") {
++            let python_binary =
++                std::env::var("PYTHON_BINARY").expect("PYTHON_BINARY must be set in OFFLINE_BUILD mode");
++            build.add_variable("python_binary", python_binary);
++
+             let uv_path =
+                 std::env::var("UV_BINARY").expect("UV_BINARY must be set in OFFLINE_BUILD mode");
+             build.add_inputs("uv", inputs![uv_path]);

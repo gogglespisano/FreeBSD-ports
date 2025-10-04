@@ -1,5 +1,5 @@
 PORTNAME=	importmap-rails
-PORTVERSION=	1.2.3
+PORTVERSION=	2.2.2
 CATEGORIES=	www rubygems
 MASTER_SITES=	RG
 
@@ -10,9 +10,9 @@ WWW=		https://github.com/rails/importmap-rails
 LICENSE=	MIT
 LICENSE_FILE=	${WRKSRC}/MIT-LICENSE
 
-RUN_DEPENDS=	rubygem-actionpack71>=6.0.0:www/rubygem-actionpack71 \
-		rubygem-activesupport71>=6.0.0:devel/rubygem-activesupport71 \
-		rubygem-railties71>=6.0.0:www/rubygem-railties71
+RUN_DEPENDS=	rubygem-actionpack80>=6.0.0:www/rubygem-actionpack80 \
+		rubygem-activesupport80>=6.0.0:devel/rubygem-activesupport80 \
+		rubygem-railties80>=6.0.0:www/rubygem-railties80
 
 USES=		gem
 

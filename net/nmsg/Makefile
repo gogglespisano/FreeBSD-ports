@@ -1,5 +1,5 @@
 PORTNAME=	nmsg
-PORTVERSION=	1.1.2
+PORTVERSION=	1.3.3
 PORTREVISION=	0
 CATEGORIES=	net
 MASTER_SITES=	FARSIGHT LOCAL/truckman/farsight
@@ -15,6 +15,7 @@ LIB_DEPENDS=	libprotobuf-c.so:devel/protobuf-c \
 		libwdns.so:dns/wdns
 
 GNU_CONFIGURE=	yes
+GNU_CONFIGURE_MANPREFIX=	${PREFIX}/share
 USES=		gmake libtool pathfix pkgconfig
 USE_LDCONFIG=	yes
 USE_PERL5=	build
@@ -25,13 +26,16 @@ PORTDOCS=	*
 
 # The DOXYGEN option is best effort.
 # If doxygen is installed, it will get used if the option is set to NO.
-OPTIONS_DEFINE=		JSON_C ZEROMQ DOXYGEN EXAMPLES MANPAGES DOCS
-OPTIONS_DEFAULT=	JSON_C ZEROMQ DOXYGEN MANPAGES
+OPTIONS_DEFINE=		JSON_C KAFKA ZEROMQ DOXYGEN EXAMPLES MANPAGES DOCS
+OPTIONS_DEFAULT=	JSON_C KAFKA ZEROMQ DOXYGEN MANPAGES
 OPTIONS_SUB=		yes
 
 JSON_C_DESC=		JSON support via libjson-c
 JSON_C_CONFIGURE_WITH=	json-c
 JSON_C_LIB_DEPENDS=	libjson-c.so:devel/json-c
+KAFKA_DESC=		Kafka I/O in JSON and binary forms
+KAFKA_CONFIGURE_WITH=	librdkafka
+KAFKA_LIB_DEPENDS=	librdkafka.so:net/librdkafka
 ZEROMQ_DESC=		ZeroMQ support
 ZEROMQ_CONFIGURE_WITH=	libzmq
 ZEROMQ_LIB_DEPENDS=	libzmq.so:net/libzmq4

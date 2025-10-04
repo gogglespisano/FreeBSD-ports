@@ -1,9 +1,8 @@
 PORTNAME=	openssl
-DISTVERSION=	3.2.0
+PORTVERSION=	3.2.5
 CATEGORIES=	security devel
-MASTER_SITES=	https://www.openssl.org/source/ \
-		ftp://ftp.cert.dfn.de/pub/tools/net/openssl/source/
 PKGNAMESUFFIX=	32
+MASTER_SITES=	https://github.com/openssl/openssl/releases/download/${DISTNAME}/
 
 MAINTAINER=	brnrd@FreeBSD.org
 COMMENT=	TLSv1.3 capable SSL and crypto library
@@ -12,7 +11,10 @@ WWW=		https://www.openssl.org/
 LICENSE=	APACHE20
 LICENSE_FILE=	${WRKSRC}/LICENSE.txt
 
-CONFLICTS_INSTALL=	boringssl libressl libressl-devel openssl openssl111 openssl31 openssl-quictls
+DEPRECATED=		Please use security/openssl35 (LTS)
+EXPIRATION_DATE=	2025-09-30
+
+CONFLICTS_INSTALL=	boringssl libressl libressl-devel openssl openssl111 openssl3[1345] openssl*-quictls
 
 HAS_CONFIGURE=	yes
 CONFIGURE_SCRIPT=	config
@@ -29,6 +31,8 @@ LDFLAGS_i386=	-Wl,-znotext
 MAKE_ARGS+=	WHOLE_ARCHIVE_FLAG=--whole-archive CNF_LDFLAGS="${LDFLAGS}"
 MAKE_ENV+=	LIBRPATH="${PREFIX}/lib" GREP_OPTIONS=
 
+EXTRA_PATCHES+=	${.CURDIR}/../openssl/files/patch-crypto_async_arch_async__posix.h
+
 OPTIONS_GROUP=		CIPHERS COMPRESSION HASHES MODULES OPTIMIZE PROTOCOLS
 OPTIONS_GROUP_CIPHERS=	ARIA DES GOST IDEA SM4 RC2 RC4 RC5 WEAK-SSL-CIPHERS
 OPTIONS_GROUP_COMPRESSION=	BROTLI ZLIB ZSTD
@@ -38,15 +42,12 @@ OPTIONS_GROUP_MODULES=	FIPS LEGACY
 OPTIONS_DEFINE_i386=	I386
 OPTIONS_GROUP_PROTOCOLS=NEXTPROTONEG QUIC SCTP SSL3 TLS1 TLS1_1 TLS1_2
 
-OPTIONS_DEFINE=	ASYNC CRYPTODEV CT KTLS MAN3 RFC3779 SHARED
+OPTIONS_DEFINE=	ASYNC CT KTLS MAN3 RFC3779 SHARED
 
 OPTIONS_DEFAULT=ASM ASYNC CT DES EC FIPS GOST MAN3 MD4 NEXTPROTONEG \
 		QUIC RFC3779 RC2 RC4 RMD160 SCTP SHARED SSE2 \
 		THREADPOOL THREADS TLS1 TLS1_1 TLS1_2
 #OPTIONS_DEFAULT+=	KTLS pending updated KTLS patch
-
-OPTIONS_EXCLUDE=${${OSVERSION} < 1300042:?KTLS:} \
-		${${OSVERSION} > 1300000:?CRYPTODEV:}
 
 OPTIONS_GROUP_OPTIMIZE_amd64=	EC
 
@@ -63,7 +64,6 @@ ASM_DESC=	Assembler code
 ASYNC_DESC=	Asynchronous mode
 CIPHERS_DESC=	Block Cipher Support
 COMPRESSION_DESC=	Compression Support
-CRYPTODEV_DESC=	/dev/crypto support
 CT_DESC=	Certificate Transparency Support
 DES_DESC=	(Triple) Data Encryption Standard
 EC_DESC=	Optimize NIST elliptic curves
@@ -145,7 +145,7 @@ ZSTD_LIB_DEPENDS=	libzstd.so:archivers/zstd
 
 SHLIBS=			lib/engines-${OPENSSL_SHLIBVER}/loader_attic.so
 
-PORTSCOUT=		limit=^3\.2\.
+PORTSCOUT=		limit:^${DISTVERSION:R:S/./\./g}\.
 
 .include <bsd.port.options.mk>
 
@@ -162,22 +162,13 @@ CONFIGURE_ARGS+=	BSD-riscv64
 IGNORE=	the OpenSSL port can not be installed over the base version
 .endif
 
-.if ${OPSYS} == FreeBSD && ${OSVERSION} < 1300000 && !${PORT_OPTIONS:MCRYPTODEV}
-CONFIGURE_ARGS+=	no-devcryptoeng
-.endif
-
 OPENSSLDIR?=	${PREFIX}/openssl
 PLIST_SUB+=	OPENSSLDIR=${OPENSSLDIR:S=^${PREFIX}/==}
 
 .include "version.mk"
 
-.if ${PORT_OPTIONS:MASM}
-BROKEN_sparc64=	option ASM generates illegal instructions
-.endif
-
 post-patch:
-	${REINPLACE_CMD} -Ee 's|^MANDIR=.*$$|MANDIR=$$(INSTALLTOP)/man|' \
-		-e 's|^(build\|install)_docs: .*|\1_docs: \1_man_docs|' \
+	${REINPLACE_CMD} -Ee 's|^(build\|install)_docs: .*|\1_docs: \1_man_docs|' \
 		${WRKSRC}/Configurations/unix-Makefile.tmpl
 	${REINPLACE_CMD} 's|SHLIB_VERSION=3|SHLIB_VERSION=${OPENSSL_SHLIBVER}|' \
 		${WRKSRC}/VERSION.dat
@@ -203,7 +194,7 @@ post-install:
 	${STRIP_CMD} ${STAGEDIR}${PREFIX}/bin/openssl
 
 post-install-MAN3-on:
-	( cd ${STAGEDIR}/${PREFIX} ; find man/man3 -not -type d ; \
-		find man/man7 -not -type d ) | sed 's/$$/.gz/' >> ${TMPPLIST}
+	( cd ${STAGEDIR}/${PREFIX} ; find share/man/man3 -not -type d ; \
+		find share/man/man7 -not -type d ) | sed 's/$$/.gz/' >> ${TMPPLIST}
 
 .include <bsd.port.post.mk>

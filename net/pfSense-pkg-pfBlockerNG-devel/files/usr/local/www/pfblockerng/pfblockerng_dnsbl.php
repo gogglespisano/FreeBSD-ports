@@ -3,8 +3,8 @@
  * pfblockerng_dnsbl.php
  *
  * part of pfSense (https://www.pfsense.org)
- * Copyright (c) 2016-2023 Rubicon Communications, LLC (Netgate)
- * Copyright (c) 2015-2023 BBcan177@gmail.com
+ * Copyright (c) 2016-2025 Rubicon Communications, LLC (Netgate)
+ * Copyright (c) 2015-2024 BBcan177@gmail.com
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the \"License\");
@@ -24,18 +24,17 @@ require_once('guiconfig.inc');
 require_once('globals.inc');
 require_once('/usr/local/pkg/pfblockerng/pfblockerng.inc');
 
-global $config, $pfb;
+global $pfb;
 pfb_global();
 $disable_move = FALSE;
 
-init_config_arr(array('installedpackages', 'pfblockerngdnsblsettings', 'config', 0));
-$pfb['dconfig'] = &$config['installedpackages']['pfblockerngdnsblsettings']['config'][0];
+$pfb['dconfig'] = config_get_path('installedpackages/pfblockerngdnsblsettings/config/0', []);
 
 // Collect local domain TLD for Python TLD Allow array
-if (strpos($config['system']['domain'], '.') !== FALSE) {
-	$local_tld = ltrim(strstr($config['system']['domain'], '.', FALSE), '.');
+if (strpos(config_get_path('system/domain'), '.') !== FALSE) {
+	$local_tld = ltrim(strstr(config_get_path('system/domain'), '.', FALSE), '.');
 } else {
-	$local_tld = $config['system']['domain'];
+	$local_tld = config_get_path('system/domain');
 }
 $default_tlds = array('arpa',$local_tld,'com','net','org','edu','ca','co','io');
 
@@ -98,7 +97,7 @@ $pconfig['aliasports_in']	= $pfb['dconfig']['aliasports_in']			?: '';
 $pconfig['autoaddr_in']		= $pfb['dconfig']['autoaddr_in']			?: '';
 $pconfig['autonot_in']		= $pfb['dconfig']['autonot_in']				?: '';
 $pconfig['aliasaddr_in']	= $pfb['dconfig']['aliasaddr_in']			?: '';
-$pconfig['autoproto_in']	= $pfb['dconfig']['autoproto_in']			?: '';
+$pconfig['autoproto_in']	= $pfb['dconfig']['autoproto_in']			?: 'any';
 $pconfig['agateway_in']		= $pfb['dconfig']['agateway_in']			?: 'default';
 
 $pconfig['autoaddrnot_out']	= $pfb['dconfig']['autoaddrnot_out']			?: '';
@@ -107,7 +106,7 @@ $pconfig['aliasports_out']	= $pfb['dconfig']['aliasports_out']			?: '';
 $pconfig['autoaddr_out']	= $pfb['dconfig']['autoaddr_out']			?: '';
 $pconfig['autonot_out']		= $pfb['dconfig']['autonot_out']			?: '';
 $pconfig['aliasaddr_out']	= $pfb['dconfig']['aliasaddr_out']			?: '';
-$pconfig['autoproto_out']	= $pfb['dconfig']['autoproto_out']			?: '';
+$pconfig['autoproto_out']	= $pfb['dconfig']['autoproto_out']			?: 'any';
 $pconfig['agateway_out']	= $pfb['dconfig']['agateway_out']			?: 'default';
 
 $pconfig['suppression']		= base64_decode($pfb['dconfig']['suppression'])		?: '';
@@ -341,13 +340,11 @@ $options_aliaslog		= [ 'enabled' => 'Enable', 'disabled' => 'Disable' ];
 
 // Collect all pfSense 'Port' Aliases
 $ports_list = $networks_list = '';
-if (!empty($config['aliases']['alias'])) {
-	foreach ($config['aliases']['alias'] as $alias) {
-		if ($alias['type'] == 'port') {
-			$ports_list .= "{$alias['name']},";
-		} elseif ($alias['type'] == 'network') {
-			$networks_list .= "{$alias['name']},";
-		}
+foreach (config_get_path('aliases/alias', []) as $alias) {
+	if ($alias['type'] == 'port') {
+		$ports_list .= "{$alias['name']},";
+	} elseif ($alias['type'] == 'network') {
+		$networks_list .= "{$alias['name']},";
 	}
 }
 $ports_list			= trim($ports_list, ',');
@@ -355,9 +352,8 @@ $networks_list			= trim($networks_list, ',');
 $options_aliasports_in		= $options_aliasports_out	= explode(',', $ports_list);
 $options_aliasaddr_in		= $options_aliasaddr_out	= explode(',', $networks_list);
 
-$options_autoproto_in		= $options_autoproto_out	= ['' => 'any', 'tcp' => 'TCP', 'udp' => 'UDP', 'tcp/udp' => 'TCP/UDP'];
+$options_autoproto_in		= $options_autoproto_out	= get_ipprotocols();
 $options_agateway_in		= $options_agateway_out		= pfb_get_gateways();
-
 
 // Validate input fields and save
 if ($_POST) {
@@ -384,8 +380,8 @@ if ($_POST) {
 						'aliasports_out'	=> '',
 						'aliasaddr_in'		=> '',
 						'aliasaddr_out'		=> '',
-						'autoproto_in'		=> '',
-						'autoproto_out'		=> '',
+						'autoproto_in'		=> 'any',
+						'autoproto_out'		=> 'any',
 						'agateway_in'		=> 'default',
 						'agateway_out'		=> 'default'
 						);
@@ -430,6 +426,7 @@ if ($_POST) {
 				$dnsbl_webpage = TRUE;
 			}
 			$pfb['dconfig']['dnsbl_webpage'] = $dnsbl_webpage_file;
+			config_set_path('installedpackages/pfblockerngdnsblsettings/config/0/dnsbl_webpage', $pfb['dconfig']['dnsbl_webpage']);
 		}
 		else {
 			$input_errors[] = 'DNSBL Web Server page is invalid!';
@@ -530,13 +527,13 @@ if ($_POST) {
 
 		// Validate Adv. firewall rule 'Protocol' setting
 		if (!empty($_POST['autoports_in']) || !empty($_POST['autoaddr_in'])) {
-			if (empty($_POST['autoproto_in'])) {
-				$input_errors[] = "Settings: Protocol setting cannot be set to 'Default' with Advanced Inbound firewall rule settings.";
+			if (empty($_POST['autoproto_in']) || $_POST['autoproto_in'] == 'any') {
+				$input_errors[] = "Settings: Protocol setting cannot be set to 'Any' with Advanced Inbound firewall rule settings.";
 			}
 		}
 		if (!empty($_POST['autoports_out']) || !empty($_POST['autoaddr_out'])) {
-			if (empty($_POST['autoproto_out'])) {
-				$input_errors[] = "Settings: Protocol setting cannot be set to 'Default' with Advanced Outbound firewall rule settings.";
+			if (empty($_POST['autoproto_out']) || $_POST['autoproto_out'] == 'any') {
+				$input_errors[] = "Settings: Protocol setting cannot be set to 'Any' with Advanced Outbound firewall rule settings.";
 			}
 		}
 
@@ -544,6 +541,7 @@ if ($_POST) {
 			if ($_POST['pfb_dnsvip_pass'] == $_POST['pfb_dnsvip_pass_confirm']) {
 				if ($_POST['pfb_dnsvip_pass'] != DMYPWD) {
 					$pfb['dconfig']['pfb_dnsvip_pass'] = pfb_filter($_POST['pfb_dnsvip_pass'], PFB_FILTER_HTML, 'dnsbl password');
+					config_set_path('installedpackages/pfblockerngdnsblsettings/config/0/pfb_dnsvip_pass', $pfb['dconfig']['pfb_dnsvip_pass']);
 				}
 			} else {
 				$input_errors[] = 'DNSBL VIP CARP password does not match the confirm password!';
@@ -612,7 +610,7 @@ if ($_POST) {
 			$pfb['dconfig']['autoaddr_in']		= pfb_filter($_POST['autoaddr_in'], PFB_FILTER_ON_OFF, 'dnsbl')		?: '';
 			$pfb['dconfig']['autonot_in']		= pfb_filter($_POST['autonot_in'], PFB_FILTER_ON_OFF, 'dnsbl')		?: '';
 			$pfb['dconfig']['aliasaddr_in']		= $_POST['aliasaddr_in']						?: '';
-			$pfb['dconfig']['autoproto_in']		= $_POST['autoproto_in']						?: '';
+			$pfb['dconfig']['autoproto_in']		= $_POST['autoproto_in']						?: 'any';
 			$pfb['dconfig']['agateway_in']		= $_POST['agateway_in']							?: 'default';
 
 			$pfb['dconfig']['autoaddrnot_out']	= pfb_filter($_POST['autoaddrnot_out'], PFB_FILTER_ON_OFF, 'dnsbl')	?: '';
@@ -621,11 +619,10 @@ if ($_POST) {
 			$pfb['dconfig']['autoaddr_out']		= pfb_filter($_POST['autoaddr_out'], PFB_FILTER_ON_OFF, 'dnsbl')	?: '';
 			$pfb['dconfig']['autonot_out']		= pfb_filter($_POST['autonot_out'], PFB_FILTER_ON_OFF, 'dnsbl')		?: '';
 			$pfb['dconfig']['aliasaddr_out']	= $_POST['aliasaddr_out']						?: '';
-			$pfb['dconfig']['autoproto_out']	= $_POST['autoproto_out']						?: '';
+			$pfb['dconfig']['autoproto_out']	= $_POST['autoproto_out']						?: 'any';
 			$pfb['dconfig']['agateway_out']		= $_POST['agateway_out']						?: 'default';
 
 			$pfb['dconfig']['alexa_enable']		= pfb_filter($_POST['alexa_enable'], PFB_FILTER_ON_OFF, 'dnsbl')	?: '';
-			$pfb['dconfig']['alexa_inclusion']	= implode(',', (array)$_POST['alexa_inclusion'])			?: 'com,net,org,ca,co,io';
 
 			$pfb['dconfig']['pfb_regex_list']	= base64_encode($_POST['pfb_regex_list'])				?: '';
 			$pfb['dconfig']['pfb_noaaaa_list']	= base64_encode($_POST['pfb_noaaaa_list'])				?: '';
@@ -682,6 +679,7 @@ if ($_POST) {
 				@copy("/usr/local/www/pfblockerng/www/{$pfb['dconfig']['dnsbl_webpage']}", '/usr/local/www/pfblockerng/www/dnsbl_active.php');
 			}
 
+			config_set_path('installedpackages/pfblockerngdnsblsettings/config/0', $pfb['dconfig']);
 			write_config('[pfBlockerNG] save DNSBL settings');
 			if ($savemsg) {
 				header("Location: /pfblockerng/pfblockerng_dnsbl.php?savemsg={$savemsg}");
@@ -3033,8 +3031,8 @@ $list_action_text = 'Default: <strong>Disabled</strong>
 				still allowing <u>deliberate</u> outgoing sessions to be created in the other direction.</li>
 				</ul>
 
-				<strong><u>\'Alias\' Rule:</u></strong><br />
-				<strong>\'Alias\'</strong> rules create an <a href="/firewall_aliases.php">alias</a> for the list (and do nothing else).
+				<strong><u>\'Alias Deny\' Rule:</u></strong><br />
+				<strong>\'Alias Deny\'</strong> rules create an <a href="/firewall_aliases.php">alias</a> for the list (and do nothing else).
 				This enables a pfBlockerNG list to be used by name, in any firewall rule or pfSense function, as desired.
 			</div>';
 
@@ -3144,7 +3142,7 @@ foreach (array( 'In' => 'Source', 'Out' => 'Destination') as $adv_mode => $adv_t
 		$pconfig['autoproto_' . $advmode],
 		$options_autoproto_in
 	))->setHelp("<strong>Default: any</strong><br />Select the Protocol used for {$adv_mode}bound Firewall Rule(s).<br />
-		<span class=\"text-danger\">Note:</span>&nbsp;Do not use 'any' with Adv. {$adv_mode}bound Rules as it will bypass these settings!")
+		<span class=\"text-danger\">Note:</span>&nbsp;Do not use 'Any' with Adv. {$adv_mode}bound Rules as it will bypass these settings!")
 	  ->addClass('dnsbl_ip');
 	$section->add($group);
 
@@ -3292,15 +3290,12 @@ function enable_python_gp() {
 }
 
 function enable_dnsblip() {
-	var dnsblip = $('#action').prop('checked'); 
-	hideInput('aliaslog', !dnsblip);
-	hideInput('dnsbl_ip_text_in', !dnsblip);
-	hideInput('dnsbl_ip_text_out', !dnsblip);
-
 	if ($('#action').val() != 'Disabled') {
+		hideInput('aliaslog', false);
 		$('#advinboundsettings').show();
 		$('#advoutboundsettings').show();
 	} else {
+		hideInput('aliaslog', true);
 		$('#advinboundsettings').hide();
 		$('#advoutboundsettings').hide();
 	}
@@ -3364,7 +3359,7 @@ events.push(function(){
 	$('label[class="col-sm-2 control-label"]').each(function() {
 		var found = $(this).text();
 		if (found.indexOf('(py)') >= 0) {
-			$(this).html(found.replace('(py)', '&emsp;<i class="fa fa-bolt" title="DNSBL Python"></i>'));
+			$(this).html(found.replace('(py)', '&emsp;<i class="fa-solid fa-bolt" title="DNSBL Python"></i>'));
 		}
 	});
 });

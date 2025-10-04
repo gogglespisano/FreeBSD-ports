@@ -10,6 +10,11 @@ MAINTAINER=	amdmi3@FreeBSD.org
 COMMENT=	Extremely addictive realtime worms shoot-em-up
 WWW=		https://openlierox.sourceforge.net/
 
+LICENSE=	LGPL20
+LICENSE_FILE=	${WRKSRC}/COPYING.LIB
+
+BROKEN=		Fails to build, error: implicit instantiation of undefined template 'std::char_traits<unsigned short>'
+
 LIB_DEPENDS=	libcurl.so:ftp/curl
 
 USES=		cmake:insource compiler:c++11-lang gnome localbase pkgconfig \

@@ -1,11 +1,20 @@
---- gpu/command_buffer/service/shared_context_state.h.orig	2023-11-22 14:00:11 UTC
+--- gpu/command_buffer/service/shared_context_state.h.orig	2025-09-11 13:19:19 UTC
 +++ gpu/command_buffer/service/shared_context_state.h
-@@ -392,6 +392,8 @@ class GPU_GLES2_EXPORT SharedContextState
-   std::vector<uint8_t> scratch_deserialization_buffer_;
-   raw_ptr<gpu::raster::GrShaderCache, DanglingUntriaged> gr_shader_cache_ =
-       nullptr;
-+  raw_ptr<GpuProcessShmCount, DanglingUntriaged> use_shader_cache_shm_count_ =
-+      nullptr;
+@@ -236,7 +236,7 @@ class GPU_GLES2_EXPORT SharedContextState
+     return &memory_type_tracker_;
+   }
+ #if BUILDFLAG(ENABLE_VULKAN) && \
+-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_WIN))
++    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_BSD))
+   ExternalSemaphorePool* external_semaphore_pool() {
+     return external_semaphore_pool_.get();
+   }
+@@ -401,7 +401,7 @@ class GPU_GLES2_EXPORT SharedContextState
+   bool disable_check_reset_status_throttling_for_test_ = false;
  
-   // |need_context_state_reset| is set whenever Skia may have altered the
-   // driver's GL state.
+ #if BUILDFLAG(ENABLE_VULKAN) && \
+-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_WIN))
++    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_BSD))
+   std::unique_ptr<ExternalSemaphorePool> external_semaphore_pool_;
+ #endif
+ 

@@ -3,7 +3,7 @@
  * lightsquid.inc
  *
  * part of pfSense (https://www.pfsense.org)
- * Copyright (c) 2015-2023 Rubicon Communications, LLC (Netgate)
+ * Copyright (c) 2015-2025 Rubicon Communications, LLC (Netgate)
  * Copyright (c) 2006-2012 Sergey Dvoriancev <dv_serg@mail.ru>
  * All rights reserved.
  *
@@ -259,6 +259,7 @@ EOF;
 	if (!isset($lightsquid_config['lighttpd_ls_ssl']) || ($lightsquid_config['lighttpd_ls_ssl'] == "on")) {
 		// Write out cert
 		$lscert = lookup_cert(config_get_path('system/webgui/ssl-certref', ''));
+		$lscert = $lscert['item'];
 		if (!is_array($lscert) || !$lscert['crt'] || !$lscert['prv'] ||
 		    cert_chain_has_weak_digest($lscert)) {
 			$lscert = cert_create_selfsigned();

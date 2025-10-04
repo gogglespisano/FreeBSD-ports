@@ -1,5 +1,6 @@
 PORTNAME=	pillow-heif
-PORTVERSION=	0.13.1
+PORTVERSION=	0.22.0
+PORTREVISION=	1
 CATEGORIES=	graphics python
 MASTER_SITES=	PYPI
 PKGNAMEPREFIX=	${PYTHON_PKGNAMEPREFIX}
@@ -15,12 +16,16 @@ LICENSE_FILE=	${WRKSRC}/LICENSE.txt
 BUILD_DEPENDS=	${PYTHON_PKGNAMEPREFIX}setuptools>=61:devel/py-setuptools@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}wheel>=0:devel/py-wheel@${PY_FLAVOR}
 LIB_DEPENDS=	libheif.so:graphics/libheif
-RUN_DEPENDS=	${PYTHON_PKGNAMEPREFIX}pillow>=9.1.1:graphics/py-pillow@${PY_FLAVOR}
+RUN_DEPENDS=	${PYTHON_PKGNAMEPREFIX}pillow>=10.1.0:graphics/py-pillow@${PY_FLAVOR}
 
-USES=		localbase python
+USES=		localbase python:3.9+
 USE_PYTHON=	autoplist concurrent pep517
 
 LDFLAGS+=	-lheif
+
+post-patch:
+# Clean up bundled libraries
+	@${RM} -r ${WRKSRC}/libheif/
 
 post-install:
 	${FIND} ${STAGEDIR}${PYTHON_SITELIBDIR} -name '*.so' -exec ${STRIP_CMD} {} +

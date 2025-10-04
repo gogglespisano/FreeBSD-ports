@@ -1,0 +1,7 @@
+TIMESTAMP = 1757068109
+SHA256 (rocky/h/highway-1.2.0-7.el9.aarch64.rpm) = baa0886f254e8095edea8b3a907a7ad1b86b908400055653a5969a32c40dde80
+SIZE (rocky/h/highway-1.2.0-7.el9.aarch64.rpm) = 734664
+SHA256 (rocky/h/highway-1.2.0-7.el9.x86_64.rpm) = 406f0a7920c63fc7ae15a7b8a116e22fd98a77da73186a95f557a40e8d2018ff
+SIZE (rocky/h/highway-1.2.0-7.el9.x86_64.rpm) = 503788
+SHA256 (rocky/h/highway-1.2.0-7.el9.src.rpm) = cc5da7b6e49a8f08041971a192d14903995f8958d2d0c0de0e78fedcffde1356
+SIZE (rocky/h/highway-1.2.0-7.el9.src.rpm) = 2249070

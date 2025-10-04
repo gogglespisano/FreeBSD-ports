@@ -1,6 +1,6 @@
 PORTNAME=	newsboat
-DISTVERSION=	2.30.1
-PORTREVISION=	7
+DISTVERSION=	2.40
+PORTREVISION=	1
 CATEGORIES=	www
 MASTER_SITES=	https://newsboat.org/releases/${DISTVERSION}/
 DISTFILES=	${DISTNAME}${EXTRACT_SUFX}
@@ -23,20 +23,24 @@ USE_GNOME=	libxml2
 
 SHEBANG_FILES=	contrib/bookmark-evernote.sh contrib/exportOPMLWithTags.py \
 		contrib/feedgrabber.rb contrib/getpocket.com/send-to-pocket.sh \
-		contrib/heise.rb contrib/image-preview/nbparser \
-		contrib/slashdot.rb doc/examples/example-exec-script.py \
-		contrib/newsboat_reorganize.py
+		contrib/heise.rb contrib/image-pager/bootstrap_image_pager.sh \
+		contrib/image-preview/nbparser contrib/move_url.py \
+		contrib/newsboat_reorganize.py contrib/slashdot.rb \
+		doc/examples/example-exec-script.py
 
-MAKE_ENV=		${CARGO_ENV}
 CARGO_BUILD=		no
 CARGO_INSTALL=		no
 CARGO_TARGET_DIR=	${WRKSRC}/target
+
+MAKE_ENV=	${CARGO_ENV}
+
+TESTING_UNSAFE=	tests fail if run as root
 
 OPTIONS_DEFINE=	DOCS
 
 .include <bsd.port.options.mk>
 
-.if ${OPSYS} == FreeBSD && ( ${OSVERSION} >= 1400091 || ( ${OSVERSION} >= 1302507 && ${OSVERSION} < 1400000 ))
+.if ${OPSYS} == FreeBSD
 CFLAGS+=	-Wno-error=incompatible-function-pointer-types
 .endif
 
@@ -48,6 +52,6 @@ post-patch:
 		${WRKSRC}/Makefile
 
 post-install:
-	${STRIP_CMD} ${STAGEDIR}${PREFIX}/bin/*boat
+	${STRIP_CMD} ${STAGEDIR}${PREFIX}/bin/*
 
 .include <bsd.port.mk>

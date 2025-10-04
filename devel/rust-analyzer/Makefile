@@ -1,5 +1,5 @@
 PORTNAME=	rust-analyzer
-DISTVERSION=	2023-11-20
+DISTVERSION=	2025-08-25
 CATEGORIES=	devel
 
 MAINTAINER=	rust@FreeBSD.org
@@ -27,9 +27,6 @@ PLIST_FILES=	bin/rust-analyzer
 PORTDOCS=	*
 
 OPTIONS_DEFINE=	DOCS
-
-post-install:
-	${STRIP_CMD} ${STAGEDIR}${PREFIX}/bin/rust-analyzer
 
 post-install-DOCS-on:
 	@cd ${WRKSRC}/docs && \

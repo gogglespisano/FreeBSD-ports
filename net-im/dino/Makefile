@@ -1,7 +1,7 @@
 PORTNAME=	dino
 DISTVERSIONPREFIX=	v
-DISTVERSION=	0.4.3
-PORTREVISION=	1
+DISTVERSION=	0.4.5
+PORTREVISION=	2
 CATEGORIES=	net-im
 
 MAINTAINER=	ashish@FreeBSD.org
@@ -25,8 +25,8 @@ LIB_DEPENDS=	libadwaita-1.so:x11-toolkits/libadwaita \
 		libsrtp2.so:net/libsrtp2 \
 		libvulkan.so:graphics/vulkan-loader
 
-USES=		cmake cpe desktop-file-utils gettext-tools gnome ninja \
-		pkgconfig vala:build
+USES=		cmake cpe desktop-file-utils gettext-tools gnome localbase \
+		ninja pkgconfig vala:build
 
 USE_GITHUB=	yes
 
@@ -39,7 +39,7 @@ LDFLAGS+=	-L${LOCALBASE}/lib
 LDFLAGS+=	-Wl,--export-dynamic
 USE_LDCONFIG=	yes
 
-USE_GNOME=	cairo gdkpixbuf2 glib20 gnomeprefix gtk40 intlhack
+USE_GNOME=	cairo gdkpixbuf glib20 gnomeprefix gtk40 intlhack
 
 CANBERRA_DESC=	Notifications sounds support
 ICE_DESC=		ICE NAT traversal plugin

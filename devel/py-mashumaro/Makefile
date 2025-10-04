@@ -1,5 +1,6 @@
 PORTNAME=	mashumaro
-PORTVERSION=	3.9
+DISTVERSION=	3.15
+PORTREVISION=	1
 CATEGORIES=	devel python
 MASTER_SITES=	PYPI
 PKGNAMEPREFIX=	${PYTHON_PKGNAMEPREFIX}
@@ -14,5 +15,7 @@ RUN_DEPENDS=	${PYTHON_PKGNAMEPREFIX}typing-extensions>=4.1.0:devel/py-typing-ext
 
 USES=		python
 USE_PYTHON=	autoplist concurrent distutils
+
+NO_ARCH=	yes
 
 .include <bsd.port.mk>

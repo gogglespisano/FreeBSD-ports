@@ -1,8 +1,8 @@
---- chrome/browser/platform_util_linux.cc.orig	2023-09-13 12:11:42 UTC
+--- chrome/browser/platform_util_linux.cc.orig	2025-04-04 08:52:13 UTC
 +++ chrome/browser/platform_util_linux.cc
-@@ -299,7 +299,9 @@ void RunCommand(const std::string& command,
- 
-   base::LaunchOptions options;
+@@ -302,7 +302,9 @@ void OnLaunchOptionsCreated(const std::string& command
+   argv.push_back(command);
+   argv.push_back(arg);
    options.current_directory = working_directory;
 +#if !BUILDFLAG(IS_BSD)
    options.allow_new_privs = true;

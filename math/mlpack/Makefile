@@ -1,16 +1,18 @@
 PORTNAME=	mlpack
-DISTVERSION=	4.2.0
-PORTREVISION=	1
+DISTVERSION=	4.5.1
 CATEGORIES=	math # machine-learning
 MASTER_SITES=	https://mlpack.org/files/
 
 MAINTAINER=	yuri@FreeBSD.org
 COMMENT=	Fast, flexible machine learning library
-WWW=		https://www.mlpack.org/
+WWW=		https://www.mlpack.org/ \
+		https://github.com/mlpack/mlpack
 
 LICENSE=	BSD3CLAUSE
 LICENSE_FILE=	${WRKSRC}/LICENSE.txt
 
+BROKEN_FreeBSD_13=	compilation fails with clang-19, see https://github.com/mlpack/mlpack/issues/3825
+BROKEN_FreeBSD_15=	compilation fails with clang-19, see https://github.com/mlpack/mlpack/issues/3825
 BROKEN_i386=	undefined symbol: __atomic_load
 
 HPP_DEPENDS=	armadillo>0:math/armadillo \

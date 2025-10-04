@@ -4,7 +4,7 @@
  * apcupsd.widget.php
  *
  * part of pfSense (https://www.pfsense.org)
- * Copyright (c) 2021-2023 Rubicon Communications, LLC (Netgate)
+ * Copyright (c) 2021-2025 Rubicon Communications, LLC (Netgate)
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,24 @@ require_once("pfsense-utils.inc");
 require_once("functions.inc");
 require_once("/usr/local/www/widgets/include/widget-apcupsd.inc");
 
+/*
+ * Validate the "widgetkey" value.
+ * When this widget is present on the Dashboard, $widgetkey is defined before
+ * the Dashboard includes the widget. During other types of requests, such as
+ * saving settings or AJAX, the value may be set via $_POST or similar.
+ */
+if ($_POST['widgetkey'] || $_GET['widgetkey']) {
+	$rwidgetkey = isset($_POST['widgetkey']) ? $_POST['widgetkey'] : (isset($_GET['widgetkey']) ? $_GET['widgetkey'] : null);
+	[$wname, $wid] = explode('-', $rwidgetkey, 2);
+	if (($wname == basename(__FILE__, '.widget.php')) &&
+	    is_numericint($wid)) {
+		$widgetkey = $rwidgetkey;
+	} else {
+		print gettext("Invalid Widget Key");
+		exit;
+	}
+}
+
 if (!function_exists('compose_apc_contents')) {
 	function compose_apc_contents($widgetkey) {
 		global $user_settings;
@@ -39,28 +57,28 @@ if (!function_exists('compose_apc_contents')) {
 			$user_settings["widgets"][$widgetkey]["apc_temp_dis_type_var"] = "1";
 		}
 		if (!isset($user_settings["widgets"][$widgetkey]["apc_load_warning_threshold"])) {
-			$user_settings["widgets"][$widgetkey]["apc_load_warning_threshold"] = "75";
+			$user_settings["widgets"][$widgetkey]["apc_load_warning_threshold"] = 75;
 		}
 		if (!isset($user_settings["widgets"][$widgetkey]["apc_load_critical_threshold"])) {
-			$user_settings["widgets"][$widgetkey]["apc_load_critical_threshold"] = "90";
+			$user_settings["widgets"][$widgetkey]["apc_load_critical_threshold"] = 90;
 		}
 		if (!isset($user_settings["widgets"][$widgetkey]["apc_temp_warning_threshold"])) {
-			$user_settings["widgets"][$widgetkey]["apc_temp_warning_threshold"] = "27";
+			$user_settings["widgets"][$widgetkey]["apc_temp_warning_threshold"] = 27;
 		}
 		if (!isset($user_settings["widgets"][$widgetkey]["apc_temp_critical_threshold"])) {
-			$user_settings["widgets"][$widgetkey]["apc_temp_critical_threshold"] = "40";
+			$user_settings["widgets"][$widgetkey]["apc_temp_critical_threshold"] = 40;
 		}
 		if (!isset($user_settings["widgets"][$widgetkey]["apc_charge_warning_threshold"])) {
-			$user_settings["widgets"][$widgetkey]["apc_charge_warning_threshold"] = "50";
+			$user_settings["widgets"][$widgetkey]["apc_charge_warning_threshold"] = 50;
 		}
 		if (!isset($user_settings["widgets"][$widgetkey]["apc_charge_critical_threshold"])) {
-			$user_settings["widgets"][$widgetkey]["apc_charge_critical_threshold"] = "15";
+			$user_settings["widgets"][$widgetkey]["apc_charge_critical_threshold"] = 15;
 		}
 		if (!isset($user_settings["widgets"][$widgetkey]["apc_bage_warning_threshold"])) {
-			$user_settings["widgets"][$widgetkey]["apc_bage_warning_threshold"] = "365";
+			$user_settings["widgets"][$widgetkey]["apc_bage_warning_threshold"] = 365;
 		}
 		if (!isset($user_settings["widgets"][$widgetkey]["apc_bage_critical_threshold"])) {
-			$user_settings["widgets"][$widgetkey]["apc_bage_critical_threshold"] = "720";
+			$user_settings["widgets"][$widgetkey]["apc_bage_critical_threshold"] = 720;
 		}
 
 		if (!(include_once "/usr/local/pkg/apcupsd.inc")) {
@@ -87,7 +105,7 @@ if (!function_exists('compose_apc_contents')) {
 			$rtnstr = "<tr><td>Status</td><td colspan=\"3\">\n";
 
 			if ($results != null) {
-				$bchrg = (($results['BCHARGE'] != "") ? str_replace(" Percent", "", $results['BCHARGE']) : null);
+				$bchrg = (($results['BCHARGE'] != "") ? floatval(str_replace(" Percent", "", $results['BCHARGE'])) : null);
 
 				if ($results['STATUS'] != "") {
 					$mainstatarray = array("ONLINE", "ON-BATTERY", "OVERLOADED", "BATTERY-LOW", "LOWBATT", "REPLACE-BATTERY", "REPLACEBATT", "COMM-LOST", "COMMLOST", "NOBATT"); //Taken from apcupsd source
@@ -133,27 +151,27 @@ if (!function_exists('compose_apc_contents')) {
 					    !in_array($statstr, $mainstatarray)) {
 						$statstr = str_replace("ONLINE", "CHARGING", $statstr);
 						$brot = "45deg";
-						$bicn = "fa fa-plug";
+						$bicn = "fa-solid fa-plug";
 						$bclr = "orange";
 					} elseif (($bchrg != null) && (in_array("ONLINE", $statusarray))) {
 						$brot = "45deg";
-						$bicn = "fa fa-plug";
+						$bicn = "fa-solid fa-plug";
 						$bclr = "green";
 					} elseif ($bchrg != null) {
 						$brot = "270deg";
 						if ($bchrg <= 25) {
-							$bicn = "fas fa-battery-empty";
+							$bicn = "fas fa-solid fa-battery-empty";
 						} elseif ($bchrg <= 50) {
-							$bicn = "fas fa-battery-quarter";
+							$bicn = "fas fa-solid fa-battery-quarter";
 						} elseif ($bchrg <= 75) {
-							$bicn = "fas fa-battery-half";
+							$bicn = "fas fa-solid fa-battery-half";
 						} elseif ($bchrg <= 99) {
-							$bicn = "fas fa-battery-three-quarters";
+							$bicn = "fas fa-solid fa-battery-three-quarters";
 						} else {
-							$bicn = "fas fa-battery-empty";
+							$bicn = "fas fa-solid fa-battery-empty";
 						}
 					} else {
-						$bicn = "fas fa-times-circle";
+						$bicn = "fas fa-solid fa-times-circle";
 						$bclr = "orange";
 						$statstr = "Unknown " . $statstr;
 						$statsubstr = "Unknown " . $statsubstr;
@@ -168,18 +186,18 @@ if (!function_exists('compose_apc_contents')) {
 
 				if ($user_settings["widgets"][$widgetkey]["apc_host_dis"] == "yes") {
 					$rtnstr .= "<tr><td>Apcupsd Host</td>\n";
-					$rtnstr .= "<td><span class=\"fas fa-server\"></span>&nbsp;(" . $nisip . ":" . $nisport . ")</td></tr>\n";
+					$rtnstr .= "<td><span class=\"fas fa-solid fa-server\"></span>&nbsp;(" . $nisip . ":" . $nisport . ")</td></tr>\n";
 				}
 
 				$rtnstr .= "</td></tr><tr><td>Line Voltage</td>\n";
-				$rtnstr .= "<td><span class=\"fa fa-bolt\"></span>&nbsp;" . (($results['LINEV']) ? $results['LINEV'] : "N/A") . (($results['LINEFREQ']!="") ? " (" . $results['LINEFREQ'] . ")" : "") . "</td>\n";
+				$rtnstr .= "<td><span class=\"fa-solid fa-bolt\"></span>&nbsp;" . (($results['LINEV']) ? $results['LINEV'] : "N/A") . (($results['LINEFREQ']!="") ? " (" . $results['LINEFREQ'] . ")" : "") . "</td>\n";
 				$rtnstr .= "<td>Out Voltage</td>\n";
-				$rtnstr .= "<td><span class=\"fa fa-bolt\"></span>&nbsp;" . (($results['OUTPUTV'] != "") ? $results['OUTPUTV'] : "N/A") . "</td>\n";
+				$rtnstr .= "<td><span class=\"fa-solid fa-bolt\"></span>&nbsp;" . (($results['OUTPUTV'] != "") ? $results['OUTPUTV'] : "N/A") . "</td>\n";
 				$rtnstr .= "</tr>\n";
 
 				if ($results['LOADPCT']) {
 					$rtnstr .= "<tr><td>Load</td><td colspan=\"3\"><div class=\"progress\">";
-					$loadpct = str_replace(" Percent", "", $results['LOADPCT']);
+					$loadpct = floatval(str_replace(" Percent", "", $results['LOADPCT']));
 					if ($loadpct >= $user_settings["widgets"][$widgetkey]["apc_load_critical_threshold"]) {
 						$rtnstr .= "<div id=\"apcupsd_load_meter\" class=\"progress-bar progress-bar-striped progress-bar-success\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: " . $user_settings["widgets"][$widgetkey]["apc_load_warning_threshold"] . "%\"></div>\n";
 						$rtnstr .= "<div id=\"apcupsd_load_meter\" class=\"progress-bar progress-bar-striped progress-bar-warning\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: " . ($user_settings["widgets"][$widgetkey]["apc_load_critical_threshold"] - $user_settings["widgets"][$widgetkey]["apc_load_warning_threshold"]) . "%\"></div>\n";
@@ -190,27 +208,27 @@ if (!function_exists('compose_apc_contents')) {
 					} else {
 						$rtnstr .= "<div id=\"apcupsd_load_meter\" class=\"progress-bar progress-bar-striped progress-bar-success\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: " . $loadpct . "%\"></div>\n";
 					}
-					$rtnstr .= "</div><span class=\"fas fa-info-circle\"></span>&nbsp;" . $loadpct . "%&nbsp;</td></tr>";
+					$rtnstr .= "</div><span class=\"fas fa-solid fa-info-circle\"></span>&nbsp;" . $loadpct . "%&nbsp;</td></tr>";
 				}
 
 				if ($results['ITEMP'] != "") {
 					$rtnstr .= "<tr><td>Temp</td><td colspan=\"3\">\n";
-					$degf = ((substr(($results['ITEMP']), -1, 1) === "C") ? (((substr(($results['ITEMP']), 0, (strlen($results['ITEMP'])-2)))*(9/5))+(32)) : (substr(($results['ITEMP']), 0, (strlen($results['ITEMP'])-2)))) . " F";
-					$degc = ((substr(($results['ITEMP']), -1, 1) === "C") ? (substr(($results['ITEMP']), 0, (strlen($results['ITEMP'])-2))) : (((substr(($results['ITEMP']), 0, (strlen($results['ITEMP'])-2)))-32)*(5/9))) . " C";
+					$degf = ((substr(($results['ITEMP']), -1, 1) === "C") ? ((floatval(substr(($results['ITEMP']), 0, (strlen($results['ITEMP'])-2)))*(9/5))+(32)) : (substr(($results['ITEMP']), 0, (strlen($results['ITEMP'])-2)))) . " F";
+					$degc = ((substr(($results['ITEMP']), -1, 1) === "C") ? (substr(($results['ITEMP']), 0, (strlen($results['ITEMP'])-2))) : ((floatval(substr(($results['ITEMP']), 0, (strlen($results['ITEMP'])-2)))-32)*(5/9))) . " C";
 					$rtnstr .= "<div class=\"progress\">\n";
 					$tempmax = 60;
-					if (substr(($degc), 0, (strlen($degc)-2)) >= $user_settings["widgets"][$widgetkey]["apc_temp_critical_threshold"]) {
+					if (floatval(substr(($degc), 0, (strlen($degc)-2))) >= $user_settings["widgets"][$widgetkey]["apc_temp_critical_threshold"]) {
 						$rtnstr .= "<div id=\"apcupsd_temp_meter\" class=\"progress-bar progress-bar-striped progress-bar-success\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: " . (($user_settings["widgets"][$widgetkey]["apc_temp_warning_threshold"]/$tempmax)*100) . "%\"></div>\n";
 						$rtnstr .= "<div id=\"apcupsd_temp_meter\" class=\"progress-bar progress-bar-striped progress-bar-warning\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: " . ((($user_settings["widgets"][$widgetkey]["apc_temp_critical_threshold"] - $user_settings["widgets"][$widgetkey]["apc_temp_warning_threshold"])/$tempmax)*100) . "%\"></div>\n";
-						$rtnstr .= "<div id=\"apcupsd_temp_meter\" class=\"progress-bar progress-bar-striped progress-bar-danger\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: " . (((ceil(substr(($degc), 0, (strlen($degc)-2))) - $user_settings["widgets"][$widgetkey]["apc_temp_critical_threshold"])/$tempmax)*100) . "%\"></div>\n";
-					} elseif (substr(($degc), 0, (strlen($degc)-2)) >= $user_settings["widgets"][$widgetkey]["apc_temp_warning_threshold"]) {
+						$rtnstr .= "<div id=\"apcupsd_temp_meter\" class=\"progress-bar progress-bar-striped progress-bar-danger\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: " . (((ceil(floatval(substr(($degc), 0, (strlen($degc)-2)))) - $user_settings["widgets"][$widgetkey]["apc_temp_critical_threshold"])/$tempmax)*100) . "%\"></div>\n";
+					} elseif (floatval(substr(($degc), 0, (strlen($degc)-2))) >= $user_settings["widgets"][$widgetkey]["apc_temp_warning_threshold"]) {
 						$rtnstr .= "<div id=\"apcupsd_temp_meter\" class=\"progress-bar progress-bar-striped progress-bar-success\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 50%\"></div>\n";
-						$rtnstr .= "<div id=\"apcupsd_temp_meter\" class=\"progress-bar progress-bar-striped progress-bar-warning\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: " . (((ceil(substr(($degc), 0, (strlen($degc)-2))) - $user_settings["widgets"][$widgetkey]["apc_temp_warning_threshold"])/$tempmax)*100) . "%\"></div>\n";
+						$rtnstr .= "<div id=\"apcupsd_temp_meter\" class=\"progress-bar progress-bar-striped progress-bar-warning\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: " . (((ceil(floatval(substr(($degc), 0, (strlen($degc)-2)))) - $user_settings["widgets"][$widgetkey]["apc_temp_warning_threshold"])/$tempmax)*100) . "%\"></div>\n";
 					} else {
-						$rtnstr .= "<div id=\"apcupsd_temp_meter\" class=\"progress-bar progress-bar-striped progress-bar-success\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: " . ((ceil(substr(($degc), 0, (strlen($degc)-2)))/$tempmax)*100) . "%\"></div>\n";
+						$rtnstr .= "<div id=\"apcupsd_temp_meter\" class=\"progress-bar progress-bar-striped progress-bar-success\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: " . ((ceil(floatval(substr(($degc), 0, (strlen($degc)-2))))/$tempmax)*100) . "%\"></div>\n";
 					}
 
-					$rtnstr .= "</div>\n<span class=\"fas fa-thermometer-full\"></span>&nbsp;&nbsp;";
+					$rtnstr .= "</div>\n<span class=\"fas fa-solid fa-thermometer-full\"></span>&nbsp;&nbsp;";
 					switch($user_settings['widgets'][$widgetkey]['apc_temp_dis_type']) {
 						case 'degf':
 							$rtnstr .= $degf;
@@ -239,13 +257,13 @@ if (!function_exists('compose_apc_contents')) {
 					$bchrgpbstyle = "progress-bar-success";
 				}
 				$rtnstr .= ($bchrg != null) ? "<td colspan=\"3\"><div class=\"progress\"><div id=\"apcupsd_bcharge_meter\" class=\"progress-bar progress-bar-striped " . $bchrgpbstyle . "\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: " . $bchrg . "%\"></div></div>\n" : "";
-				$rtnstr .= ($bchrg != null) ? "<span class=\"fas fa-battery-full\" ></span>&nbsp;" . $bchrg . "%\n" : "";
+				$rtnstr .= ($bchrg != null) ? "<span class=\"fas fa-solid fa-battery-full\" ></span>&nbsp;" . $bchrg . "%\n" : "";
 
-				$rtnstr .= (($results['BATTV'] != "") ? "<span class=\"fa fa-bolt\" style=\"padding-left:1em\" ></span>&nbsp;" . $results['BATTV'] . "</td></tr>\n" : "</tr>\n");
+				$rtnstr .= (($results['BATTV'] != "") ? "<span class=\"fa-solid fa-bolt\" style=\"padding-left:1em\" ></span>&nbsp;" . $results['BATTV'] . "</td></tr>\n" : "</tr>\n");
 
 				if ($results['TIMELEFT'] != "") {
 					$rtnstr .= "<tr><td>Time Remaining</td>";
-					$rtnstr .= "<td colspan=\"3\"><span class=\"fa fa-clock-o\"></span>&nbsp;" . $results['TIMELEFT'] . "</td></tr>\n";
+					$rtnstr .= "<td colspan=\"3\"><span class=\"fa-regular fa-clock\"></span>&nbsp;" . $results['TIMELEFT'] . "</td></tr>\n";
 				}
 
 				$rtnstr .= "<tr><td>Battery Age</td>";
@@ -267,19 +285,19 @@ if (!function_exists('compose_apc_contents')) {
 						}
 					}
 
-					if ($batt_age['TotalDays'] >= $user_settings["widgets"][$widgetkey]["apc_bage_critical_threshold"]) {
+					if (floatval($batt_age['TotalDays']) >= $user_settings["widgets"][$widgetkey]["apc_bage_critical_threshold"]) {
 						$bageclr = "red";
-						$bageicn = "fa fa-calendar-times-o";
-					} elseif ($batt_age['TotalDays'] >= $user_settings["widgets"][$widgetkey]["apc_bage_warning_threshold"]) {
+						$bageicn = "fa-regular fa-calendar-xmark";
+					} elseif (floatval($batt_age['TotalDays']) >= $user_settings["widgets"][$widgetkey]["apc_bage_warning_threshold"]) {
 						$bageclr = "orange";
-						$bageicn = "fa fa-calendar-minus-o";
+						$bageicn = "fa-regular fa-calendar-minus";
 					} else {
 						$bageclr = "green";
-						$bageicn = "fa fa-calendar-check-o";
+						$bageicn = "fa-regular fa-calendar-check";
 					}
 				} else {
 					$bageclr = "orange";
-					$bageicn = "fa fa-calendar-minus-o";
+					$bageicn = "fa-regular fa-calendar-minus";
 					$batt_age_fstr = "Unknown Battery Date";
 					$batt_org = (DateTime::createFromFormat('m/d/Y H:i:s', '01/01/1900 00:00:00'));
 				}
@@ -294,22 +312,22 @@ if (!function_exists('compose_apc_contents')) {
 				if ($results['SELFTEST'] != "") {
 					switch ($results['SELFTEST']) {
 						case "OK":
-							$stesticn = "fa fa-check-square";
+							$stesticn = "fa-solid fa-check-square";
 							$stestclr = "green";
 							$steststr = "Pass";
 						break;
 						case "BT":
-							$stesticn = "fa fa-exclamation-triangle";
+							$stesticn = "fa-solid fa-exclamation-triangle";
 							$stestclr = "red";
 							$steststr = "Failed (Capacity)";
 						break;
 						case "NG":
-							$stesticn = "fa fa-exclamation-triangle";
+							$stesticn = "fa-solid fa-exclamation-triangle";
 							$stestclr = "red";
 							$steststr = "Failed (Overload)";
 						break;
 						case "NO":
-							$stesticn = "fas fa-question-square";
+							$stesticn = "fas fa-solid fa-question-square";
 							$stestclr = "orange";
 							$steststr = "Unknown (No Recent Test)";
 						break;
@@ -348,38 +366,41 @@ if ($_POST['widgetkey']) {
 	if (!is_array($user_settings["widgets"][$_POST['widgetkey']])) {
 		$user_settings["widgets"][$_POST['widgetkey']] = array();
 	}
-	if (isset($_POST["apc_temp_dis_type"])) {
+	if (isset($_POST["apc_temp_dis_type"]) &&
+	    in_array($_POST["apc_temp_dis_type"], ['degc', 'degf', 'both_deg'])) {
 		$user_settings["widgets"][$_POST['widgetkey']]["apc_temp_dis_type"] = $_POST["apc_temp_dis_type"];
 	}
-	if (isset($_POST["apc_host_dis"])){
+	if (isset($_POST["apc_host_dis"]) &&
+	    in_array($_POST["apc_host_dis"], ['yes', 'no'])) {
 		$user_settings["widgets"][$_POST['widgetkey']]["apc_host_dis"] = $_POST["apc_host_dis"];
 	}
-	if (isset($_POST["apc_temp_dis_type_var"])) {
+	if (isset($_POST["apc_temp_dis_type_var"]) &&
+	    in_array($_POST["apc_temp_dis_type_var"], ['1', '2'])) {
 		$user_settings["widgets"][$_POST['widgetkey']]["apc_temp_dis_type_var"] = $_POST["apc_temp_dis_type_var"];
 	}
 	if (isset($_POST["apc_load_warning_threshold"])) {
-		$user_settings["widgets"][$_POST['widgetkey']]["apc_load_warning_threshold"] = $_POST["apc_load_warning_threshold"];
+		$user_settings["widgets"][$_POST['widgetkey']]["apc_load_warning_threshold"] = floatval($_POST["apc_load_warning_threshold"]);
 	}
 	if (isset($_POST["apc_load_critical_threshold"])) {
-		$user_settings["widgets"][$_POST['widgetkey']]["apc_load_critical_threshold"] = $_POST["apc_load_critical_threshold"];
+		$user_settings["widgets"][$_POST['widgetkey']]["apc_load_critical_threshold"] = floatval($_POST["apc_load_critical_threshold"]);
 	}
 	if (isset($_POST["apc_temp_warning_threshold"])) {
-		$user_settings["widgets"][$_POST['widgetkey']]["apc_temp_warning_threshold"] = $_POST["apc_temp_warning_threshold"];
+		$user_settings["widgets"][$_POST['widgetkey']]["apc_temp_warning_threshold"] = floatval($_POST["apc_temp_warning_threshold"]);
 	}
 	if (isset($_POST["apc_temp_critical_threshold"])) {
-		$user_settings["widgets"][$_POST['widgetkey']]["apc_temp_critical_threshold"] = $_POST["apc_temp_critical_threshold"];
+		$user_settings["widgets"][$_POST['widgetkey']]["apc_temp_critical_threshold"] = floatval($_POST["apc_temp_critical_threshold"]);
 	}
 	if (isset($_POST["apc_charge_warning_threshold"])) {
-		$user_settings["widgets"][$_POST['widgetkey']]["apc_charge_warning_threshold"] = $_POST["apc_charge_warning_threshold"];
+		$user_settings["widgets"][$_POST['widgetkey']]["apc_charge_warning_threshold"] = floatval($_POST["apc_charge_warning_threshold"]);
 	}
 	if (isset($_POST["apc_charge_critical_threshold"])) {
-		$user_settings["widgets"][$_POST['widgetkey']]["apc_charge_critical_threshold"] = $_POST["apc_charge_critical_threshold"];
+		$user_settings["widgets"][$_POST['widgetkey']]["apc_charge_critical_threshold"] = floatval($_POST["apc_charge_critical_threshold"]);
 	}
 	if (isset($_POST["apc_bage_warning_threshold"])) {
-		$user_settings["widgets"][$_POST['widgetkey']]["apc_bage_warning_threshold"] = $_POST["apc_bage_warning_threshold"];
+		$user_settings["widgets"][$_POST['widgetkey']]["apc_bage_warning_threshold"] = floatval($_POST["apc_bage_warning_threshold"]);
 	}
 	if (isset($_POST["apc_bage_critical_threshold"])) {
-		$user_settings["widgets"][$_POST['widgetkey']]["apc_bage_critical_threshold"] = $_POST["apc_bage_critical_threshold"];
+		$user_settings["widgets"][$_POST['widgetkey']]["apc_bage_critical_threshold"] = floatval($_POST["apc_bage_critical_threshold"]);
 	}
 
 	save_widget_settings($_SESSION['Username'], $user_settings["widgets"], gettext("Updated apcupsd widget settings via dashboard."));
@@ -387,7 +408,7 @@ if ($_POST['widgetkey']) {
 	header("Location: /");
 	exit(0);
 }
-$widgetperiod = isset($config['widgets']['period']) ? $config['widgets']['period'] * 1000 : 10000;
+$widgetperiod = (config_get_path('widgets/period') !== null) ? config_get_path('widgets/period') * 1000 : 10000;
 
 ?>
 <table class="table table-hover table-striped table-condensed">
@@ -395,7 +416,7 @@ $widgetperiod = isset($config['widgets']['period']) ? $config['widgets']['period
 		<tr><td><?=gettext("Retrieving data...")?></td></tr>
 	</tbody>
 </table>
-<!-- <a id="apcupsd_apcaccess_refresh" href="#" class="fa fa-refresh" style="display: none;"></a> -->
+<!-- <a id="apcupsd_apcaccess_refresh" href="#" class="fa-solid fa-arrows-rotate" style="display: none;"></a> -->
 </div><div id="<?=$widget_panel_footer_id?>" class="panel-footer collapse">
 <form action="/widgets/widgets/apcupsd.widget.php" method="post" class="form-horizontal">
 	<?=gen_customwidgettitle_div($widgetconfig['title']); ?>
@@ -432,10 +453,10 @@ $widgetperiod = isset($config['widgets']['period']) ? $config['widgets']['period
 		<label class="col-sm-4 control-label"><?=gettext('Load Levels')?></label>
 		<div class="col-sm-6">
 			<div class="col-sm-4">
-				<label><?=gettext('Warning')?><input type="text"name="apc_load_warning_threshold" id="apc_load_warning_threshold" value="<?= gettext($user_settings["widgets"][$widgetkey]["apc_load_warning_threshold"]); ?>" class="form-control" /></label>
+				<label><?=gettext('Warning')?><input type="text"name="apc_load_warning_threshold" id="apc_load_warning_threshold" value="<?= $user_settings["widgets"][$widgetkey]["apc_load_warning_threshold"]; ?>" class="form-control" /></label>
 			</div>
 			<div class="col-sm-4">
-				<label><?=gettext('Critical')?><input type="text" name="apc_load_critical_threshold" id="apc_load_critical_threshold" value="<?= gettext($user_settings["widgets"][$widgetkey]["apc_load_critical_threshold"]); ?>" class="form-control" /></label>
+				<label><?=gettext('Critical')?><input type="text" name="apc_load_critical_threshold" id="apc_load_critical_threshold" value="<?= $user_settings["widgets"][$widgetkey]["apc_load_critical_threshold"]; ?>" class="form-control" /></label>
 			</div>
 		</div>
 	</div>
@@ -443,10 +464,10 @@ $widgetperiod = isset($config['widgets']['period']) ? $config['widgets']['period
 		<label class="col-sm-4 control-label"><?=gettext('Temp Levels')?></label>
 		<div class="col-sm-7">
 			<div class="col-sm-5">
-				<label><?=gettext('Warning (°C)')?><input type="text" maxlength="2" size="2"  name="apc_temp_warning_threshold" id="apc_temp_warning_threshold" value="<?= gettext($user_settings["widgets"][$widgetkey]["apc_temp_warning_threshold"]); ?>" class="form-control" /></label>
+				<label><?=gettext('Warning (°C)')?><input type="text" maxlength="2" size="2"  name="apc_temp_warning_threshold" id="apc_temp_warning_threshold" value="<?= $user_settings["widgets"][$widgetkey]["apc_temp_warning_threshold"]; ?>" class="form-control" /></label>
 			</div>
 			<div class="col-sm-5">
-				<label><?=gettext('Critical (°C)')?><input type="text" maxlength="2" size="2" name="apc_temp_critical_threshold" id="apc_temp_critical_threshold" value="<?= gettext($user_settings["widgets"][$widgetkey]["apc_temp_critical_threshold"]); ?>" class="form-control" /></label>
+				<label><?=gettext('Critical (°C)')?><input type="text" maxlength="2" size="2" name="apc_temp_critical_threshold" id="apc_temp_critical_threshold" value="<?= $user_settings["widgets"][$widgetkey]["apc_temp_critical_threshold"]; ?>" class="form-control" /></label>
 			</div>
 		</div>
 	</div>
@@ -454,10 +475,10 @@ $widgetperiod = isset($config['widgets']['period']) ? $config['widgets']['period
 		<label class="col-sm-4 control-label"><?=gettext('Charge Levels')?></label>
 		<div class="col-sm-6">
 			<div class="col-sm-4">
-				<label><?=gettext('Warning')?><input type="text" name="apc_charge_warning_threshold" id="apc_charge_warning_threshold" value="<?= gettext($user_settings["widgets"][$widgetkey]["apc_charge_warning_threshold"]); ?>" class="form-control" /></label>
+				<label><?=gettext('Warning')?><input type="text" name="apc_charge_warning_threshold" id="apc_charge_warning_threshold" value="<?= $user_settings["widgets"][$widgetkey]["apc_charge_warning_threshold"]; ?>" class="form-control" /></label>
 			</div>
 			<div class="col-sm-4">
-				<label><?=gettext('Critical')?><input type="text" name="apc_charge_critical_threshold" id="apc_charge_critical_threshold" value="<?= gettext($user_settings["widgets"][$widgetkey]["apc_charge_critical_threshold"]); ?>" class="form-control" /></label>
+				<label><?=gettext('Critical')?><input type="text" name="apc_charge_critical_threshold" id="apc_charge_critical_threshold" value="<?= $user_settings["widgets"][$widgetkey]["apc_charge_critical_threshold"]; ?>" class="form-control" /></label>
 			</div>
 		</div>
 	</div>
@@ -465,10 +486,10 @@ $widgetperiod = isset($config['widgets']['period']) ? $config['widgets']['period
 		<label class="col-sm-4 control-label"><?=gettext('Battery Age Levels')?></label>
 		<div class="col-sm-6">
 			<div class="col-sm-4">
-				<label><?=gettext('Warning')?><input type="text" name="apc_bage_warning_threshold" id="apc_bage_warning_threshold" value="<?= gettext($user_settings["widgets"][$widgetkey]["apc_bage_warning_threshold"]); ?>" class="form-control" /></label>
+				<label><?=gettext('Warning')?><input type="text" name="apc_bage_warning_threshold" id="apc_bage_warning_threshold" value="<?= $user_settings["widgets"][$widgetkey]["apc_bage_warning_threshold"]; ?>" class="form-control" /></label>
 			</div>
 			<div class="col-sm-4">
-				<label><?=gettext('Critical')?><input type="text" name="apc_bage_critical_threshold" id="apc_bage_critical_threshold" value="<?= gettext($user_settings["widgets"][$widgetkey]["apc_bage_critical_threshold"]); ?>" class="form-control" /></label>
+				<label><?=gettext('Critical')?><input type="text" name="apc_bage_critical_threshold" id="apc_bage_critical_threshold" value="<?= $user_settings["widgets"][$widgetkey]["apc_bage_critical_threshold"]; ?>" class="form-control" /></label>
 			</div>
 		</div>
 	</div>
@@ -476,7 +497,7 @@ $widgetperiod = isset($config['widgets']['period']) ? $config['widgets']['period
 	<div class="form-group">
 		<div align="center">
 			<input type="hidden" name="widgetkey" value="<?=htmlspecialchars($widgetkey); ?>">
-			<button type="submit" class="btn btn-primary"><i class="fa fa-save icon-embed-btn"></i><?=gettext('Save')?></button>
+			<button type="submit" class="btn btn-primary"><i class="fa-solid fa-save icon-embed-btn"></i><?=gettext('Save')?></button>
 		</div>
 	</div>
 </form>
@@ -498,7 +519,7 @@ events.push(function()
 	refreshObject.url = "/widgets/widgets/apcupsd.widget.php";
 	refreshObject.callback = apcupsd_refresh_callback;
 	refreshObject.parms = postdata;
-	refreshObject.freq = 1;
+	refreshObject.freq = 10;
 
 	register_ajax(refreshObject);
 });

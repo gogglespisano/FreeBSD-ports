@@ -1,3 +1,3 @@
-TIMESTAMP = 1699999215
-SHA256 (apache-tomcat-10.1.16.tar.gz) = 432b0b98a377450f13b9a47b82ea7df78ed0bcf2ee4b759182b4c7fdc1fe5841
-SIZE (apache-tomcat-10.1.16.tar.gz) = 12484310
+TIMESTAMP = 1757700000
+SHA256 (apache-tomcat-10.1.46.tar.gz) = 45e9d5ef561ab46b74c75f40c33b83f49e13e79e99f736dff8e8948557e968da
+SIZE (apache-tomcat-10.1.46.tar.gz) = 14123043

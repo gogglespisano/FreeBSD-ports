@@ -1,6 +1,7 @@
 PORTNAME=	midivisualizer
 DISTVERSIONPREFIX=	v
 DISTVERSION=	7.2
+PORTREVISION=	1
 CATEGORIES=	audio
 
 MAINTAINER=	yuri@FreeBSD.org
@@ -18,7 +19,7 @@ LIB_DEPENDS=	libasound.so:audio/alsa-lib \
 		libnotify.so:devel/libnotify
 
 USES=		cmake compiler:c++20-lang gettext-runtime gl gnome localbase:ldflags pkgconfig xorg
-USE_GNOME=	cairo gdkpixbuf2 glib20 gtk30 pango
+USE_GNOME=	cairo gdkpixbuf glib20 gtk30 pango
 USE_GL=		gl
 USE_XORG=	x11
 

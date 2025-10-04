@@ -1,6 +1,6 @@
 PORTNAME=	spar
 PORTVERSION=	0.5.10
-PORTREVISION=	6
+PORTREVISION=	7
 CATEGORIES=	math devel
 MASTER_SITES=	SF/${PORTNAME}/Spar/${PORTVERSION}
 
@@ -17,11 +17,12 @@ USE_CSTD=	gnu89
 USE_LDCONFIG=	yes
 
 GNU_CONFIGURE=	yes
+GNU_CONFIGURE_MANPREFIX=${PREFIX}/share
 
 .include <bsd.port.pre.mk>
 
-.if ${OPSYS} == FreeBSD && ( ${OSVERSION} >= 1400079 || ( ${OSVERSION} >= 1302505 && ${OSVERSION} < 1400000 ))
-CFLAGS+=	-Wno-error=int-conversion
+.if ${OPSYS} == FreeBSD
+CFLAGS+=	-Wno-error=int-conversion -Wno-error=incompatible-function-pointer-types
 .endif
 
 post-patch:

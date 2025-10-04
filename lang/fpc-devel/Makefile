@@ -1,6 +1,5 @@
 PORTNAME=	fpc
-PORTVERSION=	3.3.1.20231027
-PORTREVISION=	2
+PORTVERSION=	3.3.1.20250807
 CATEGORIES=	lang
 MASTER_SITES=	LOCAL/acm/freepascal/:bootstrap \
 		LOCAL/acm/freepascal/:man
@@ -15,13 +14,13 @@ CONFLICTS=	fpc
 
 RUN_DEPENDS=	${LOCALBASE}/bin/as:devel/binutils
 
-ONLY_FOR_ARCHS=	amd64 i386
+ONLY_FOR_ARCHS=	aarch64 amd64 i386
 
 USES+=		gmake iconv
 USE_BINUTILS=	yes
-BOOTVER=	3.2.2
+BOOTVER?=	3.2.2
 FPCBASEVER=	3.3.1
-MANVER=		3.0.4
+MANVER=		3.2.2
 
 FPC_LDPATH?=	"${LOCALBASE}/bin/ld.bfd"
 
@@ -29,9 +28,9 @@ USE_GITLAB=	yes
 GL_SITE=	https://gitlab.com/freepascal.org
 GL_ACCOUNT=	fpc
 GL_PROJECT=	source
-GL_COMMIT=	55e72fc0f1505c75f60af706736d32ceca9815a4
+GL_TAGNAME=	574b03bfb99348067f98320e7da2a788005214d4
 
-FPCSRCDIR=	source-${GL_COMMIT}
+FPCSRCDIR=	source-${GL_TAGNAME}
 
 .include <bsd.port.pre.mk>
 
@@ -39,12 +38,22 @@ FPCSRCDIR=	source-${GL_COMMIT}
 PPNAME=		ppc386
 FPC_ARCH=	i386
 PLIST_SUB+=	FPC_I386="" \
-		FPC_AMD64="@comment "
+		FPC_AMD64="@comment " \
+		FPC_AARCH64="@comment "
 .elif ${ARCH} == "amd64"
 PPNAME=		ppcx64
 FPC_ARCH=	x86_64
 PLIST_SUB+=	FPC_I386="@comment " \
-		FPC_AMD64=""
+		FPC_AMD64="" \
+		FPC_AARCH64="@comment "
+.elif ${ARCH} == "aarch64"
+PPNAME=		ppca64
+FPC_ARCH=	aarch64
+PLIST_SUB+=	FPC_I386="@comment " \
+		FPC_AMD64="@comment " \
+		FPC_AARCH64=""
+BOOTVER=	${FPCBASEVER}
+MAKE_ARGS+=	OVERRIDEVERSIONCHECK=yes
 .endif
 
 .if ${OPSYS} == FreeBSD
@@ -85,7 +94,7 @@ do-extract:
 	@${TAR} -xzf ${_DISTDIR}/fpc-${MANVER}.man.tar.gz --directory ${WRKDIR}
 # unpack source distribution
 	@(cd ${WRKDIR} && ${GZIP_CMD} -dc \
-		${_DISTDIR}/${PORTNAME}-source-${GL_COMMIT}_GL0${EXTRACT_SUFX} | \
+		${_DISTDIR}/${PORTNAME}-source-${GL_TAGNAME}_GL0${EXTRACT_SUFX} | \
 		${TAR} -xf -)
 
 post-patch:
@@ -93,6 +102,8 @@ post-patch:
 	@${REINPLACE_CMD} -i "" -e 's|900044|${OSVERSION}|g' \
 				-e 's|1201000|${OSVERSION}|g' \
 				-e 's|1200000|${OSVERSION}|g' \
+				-e 's|1302001|${OSVERSION}|g' \
+				-e 's|1400097|${OSVERSION}|g' \
 		${WRKSRC}/rtl/freebsd/${FPC_ARCH}/*.as \
 		${WRKSRC}/rtl/freebsd/${FPC_ARCH}/*.inc
 .else
@@ -136,14 +147,15 @@ post-patch:
 		${WRKSRC}/packages/mad/fpmake.pp
 	@${REINPLACE_CMD} -i "" -e 's|linux|freebsd,linux|g' \
 		${WRKSRC}/packages/modplug/fpmake.pp
-	@${REINPLACE_CMD} -i "" -e 's|linux|freebsd,linux|g' \
+	@${REINPLACE_CMD} -i "" -e 's|Linux|freebsd,linux|g' \
 		${WRKSRC}/packages/newt/fpmake.pp
 	@${REINPLACE_CMD} -i "" -e 's|linux|freebsd,linux|g' \
 		${WRKSRC}/packages/oggvorbis/fpmake.pp
 	@${REINPLACE_CMD} -i "" -e 's|linux|freebsd,linux|g' \
 		${WRKSRC}/packages/openal/fpmake.pp
 	@${REINPLACE_CMD} -i "" -e 's|linux|freebsd,linux|g' \
-		${WRKSRC}/packages/opencl/fpmake.pp
+		-e 's|x86_64|x86_64,aarch64|g' \
+			${WRKSRC}/packages/opencl/fpmake.pp
 	@${REINPLACE_CMD} -i "" -e 's|linux|freebsd,linux|g' \
 		${WRKSRC}/packages/proj4/fpmake.pp
 	@${REINPLACE_CMD} -i "" -e 's|os2|freebsd,os2|g' \
@@ -168,8 +180,8 @@ do-install:
 		${MAKE_CMD} install ${MAKE_ARGS} ${BOOTPPC})
 
 	# Installing manpages
-	${INSTALL_MAN} ${WRKDIR}/man/man1/* ${STAGEDIR}${MAN1PREFIX}/man/man1
-	${INSTALL_MAN} ${WRKDIR}/man/man5/* ${STAGEDIR}${MAN1PREFIX}/man/man5
+	${INSTALL_MAN} ${WRKDIR}/man/man1/* ${STAGEDIR}${PREFIX}/share/man/man1
+	${INSTALL_MAN} ${WRKDIR}/man/man5/* ${STAGEDIR}${PREFIX}/share/man/man5
 	# symlinking compiler
 	(cd ${STAGEDIR}${PREFIX}/bin && ${LN} -sf ../lib/fpc/${FPCBASEVER}/${PPNAME})
 	# creating sample configuration file
@@ -178,6 +190,9 @@ do-install:
 		"${STAGEDIR}${PREFIX}/etc"
 	@${REINPLACE_CMD} -i "" -e 's|${STAGEDIR}||' \
 		-e 's|^#-Fl/lib;/usr/lib|-Fl${LOCALBASE}/lib;${LOCALBASE}/lib/qt5;${LOCALBASE}/lib/qt6|g' \
-		${STAGEDIR}${PREFIX}/etc/fpc.cfg.sample
+			${STAGEDIR}${PREFIX}/etc/fpc.cfg.sample \
+			${STAGEDIR}${PREFIX}/etc/fppkg.cfg.sample \
+			${STAGEDIR}${PREFIX}/etc/fppkg/default \
+			${STAGEDIR}${PREFIX}/lib/fpc/${FPCBASEVER}/ide/text/fp.cfg
 
 .include <bsd.port.post.mk>

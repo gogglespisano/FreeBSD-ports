@@ -1,8 +1,8 @@
 PORTNAME=	Image-ExifTool
-DISTVERSION=	12.70
+DISTVERSION=	13.37
 CATEGORIES=	graphics perl5
-MASTER_SITES=	SF/exiftool \
-		https://exiftool.org/
+MASTER_SITES=	https://exiftool.org/ \
+		SF/exiftool
 PKGNAMEPREFIX=	p5-
 PKGNAMESUFFIX=	-devel
 
@@ -25,6 +25,6 @@ OPTIONS_DEFINE=	DOCS
 post-install-DOCS-on:
 	@${MKDIR} ${STAGEDIR}${DOCSDIR}
 	${INSTALL_DATA} ${WRKSRC}/Changes ${WRKSRC}/README ${STAGEDIR}${DOCSDIR}
-	cd ${WRKSRC}/ && ${COPYTREE_SHARE} html ${STAGEDIR}${DOCSDIR}
+	cd ${WRKSRC} && ${COPYTREE_SHARE} html ${STAGEDIR}${DOCSDIR}
 
 .include <bsd.port.mk>

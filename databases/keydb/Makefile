@@ -1,6 +1,7 @@
 PORTNAME=	keydb
 DISTVERSIONPREFIX=	v
 DISTVERSION=	6.3.4
+PORTREVISION=	1
 CATEGORIES=	databases
 
 MAINTAINER=	zi@FreeBSD.org
@@ -10,7 +11,10 @@ WWW=		https://docs.keydb.dev/
 LICENSE=	BSD3CLAUSE
 LICENSE_FILE=	${WRKSRC}/COPYING
 
-LIB_DEPENDS=	libuuid.so:misc/e2fsprogs-libuuid \
+BROKEN_i386=	assertion failed: static_assert(sizeof(long) == sizeof(long long),"")
+BROKEN_powerpc=	assertion failed: static_assert(sizeof(long) == sizeof(long long),"")
+
+LIB_DEPENDS=	libuuid.so:misc/libuuid \
 		liblz4.so:archivers/liblz4 \
 		libsnappy.so:archivers/snappy \
 		libzstd.so:archivers/zstd

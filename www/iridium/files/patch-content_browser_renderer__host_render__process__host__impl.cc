@@ -1,6 +1,6 @@
---- content/browser/renderer_host/render_process_host_impl.cc.orig	2023-11-22 14:00:11 UTC
+--- content/browser/renderer_host/render_process_host_impl.cc.orig	2025-09-11 13:19:19 UTC
 +++ content/browser/renderer_host/render_process_host_impl.cc
-@@ -220,7 +220,7 @@
+@@ -224,7 +224,7 @@
  #include "third_party/blink/public/mojom/android_font_lookup/android_font_lookup.mojom.h"
  #endif
  
@@ -9,7 +9,7 @@
  #include <sys/resource.h>
  
  #include "components/services/font/public/mojom/font_service.mojom.h"  // nogncheck
-@@ -951,7 +951,7 @@ static constexpr size_t kUnknownPlatformProcessLimit =
+@@ -1114,7 +1114,7 @@ static constexpr size_t kUnknownPlatformProcessLimit =
  // to indicate failure and std::numeric_limits<size_t>::max() to indicate
  // unlimited.
  size_t GetPlatformProcessLimit() {
@@ -18,25 +18,16 @@
    struct rlimit limit;
    if (getrlimit(RLIMIT_NPROC, &limit) != 0)
      return kUnknownPlatformProcessLimit;
-@@ -1094,7 +1094,7 @@ class RenderProcessHostImpl::IOThreadHostImpl : public
-         return;
-     }
+@@ -1321,7 +1321,7 @@ RenderProcessHostImpl::IOThreadHostImpl::~IOThreadHost
  
+ void RenderProcessHostImpl::IOThreadHostImpl::SetPid(
+     base::ProcessId child_pid) {
 -#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
 +#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_BSD)
-     if (auto font_receiver = receiver.As<font_service::mojom::FontService>()) {
-       ConnectToFontService(std::move(font_receiver));
-       return;
-@@ -1183,7 +1183,7 @@ class RenderProcessHostImpl::IOThreadHostImpl : public
-   std::unique_ptr<service_manager::BinderRegistry> binders_;
-   mojo::Receiver<mojom::ChildProcessHost> receiver_{this};
- 
--#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_BSD)
-   mojo::Remote<media::mojom::VideoEncodeAcceleratorProviderFactory>
-       video_encode_accelerator_factory_remote_;
+   child_thread_type_switcher_.SetPid(child_pid);
  #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-@@ -3256,7 +3256,7 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
+ }
+@@ -3416,7 +3416,7 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
              base::TimeTicks::UnixEpoch().since_origin().InMicroseconds()));
    }
  
@@ -45,12 +36,21 @@
    // Append `kDisableVideoCaptureUseGpuMemoryBuffer` flag if there is no support
    // for NV12 GPU memory buffer.
    if (switches::IsVideoCaptureUseGpuMemoryBufferEnabled() &&
-@@ -3316,6 +3316,8 @@ void RenderProcessHostImpl::PropagateBrowserCommandLin
-     switches::kDisableSpeechAPI,
-     switches::kDisableThreadedCompositing,
-     switches::kDisableTouchDragDrop,
-+    switches::kDisableUnveil,
-+    switches::kTrk,
-     switches::kDisableUseSharedImagesForPepperVideo,
-     switches::kDisableV8IdleTasks,
-     switches::kDisableVideoCaptureUseGpuMemoryBuffer,
+@@ -3472,6 +3472,8 @@ void RenderProcessHostImpl::PropagateBrowserCommandLin
+       switches::kDisableSkiaRuntimeOpts,
+       switches::kDisableSpeechAPI,
+       switches::kDisableThreadedCompositing,
++      switches::kDisableUnveil,
++      switches::kTrk,
+       switches::kDisableV8IdleTasks,
+       switches::kDisableVideoCaptureUseGpuMemoryBuffer,
+       switches::kDisableWebGLImageChromium,
+@@ -5350,7 +5352,7 @@ uint64_t RenderProcessHostImpl::GetPrivateMemoryFootpr
+   // - Win: https://crbug.com/707022 .
+   uint64_t total_size = 0;
+ #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
+-    BUILDFLAG(IS_FUCHSIA)
++    BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_BSD)
+   total_size = dump->platform_private_footprint->rss_anon_bytes +
+                dump->platform_private_footprint->vm_swap_bytes;
+ #elif BUILDFLAG(IS_APPLE)

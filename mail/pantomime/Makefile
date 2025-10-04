@@ -1,5 +1,6 @@
 PORTNAME=	pantomime
 DISTVERSION=	1.4.0
+PORTREVISION=	1
 CATEGORIES=	mail gnustep
 MASTER_SITES=	SAVANNAH/gnustep-nonfsf/
 DISTNAME=	Pantomime-${DISTVERSION}
@@ -23,7 +24,7 @@ DEFAULT_LIBVERSION=	${DISTVERSION:R}
 
 .include <bsd.port.pre.mk>
 
-.if ${OPSYS} == FreeBSD && ( ${OSVERSION} >= 1400079 || ( ${OSVERSION} >= 1302505 && ${OSVERSION} < 1400000 ))
+.if ${OPSYS} == FreeBSD
 CFLAGS+=       -Wno-error=int-conversion
 .endif
 

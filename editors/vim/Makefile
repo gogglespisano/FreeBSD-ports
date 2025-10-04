@@ -1,5 +1,5 @@
 PORTNAME=	vim
-PORTVERSION=	9.0.2130
+PORTVERSION=	9.1.1744
 DISTVERSIONPREFIX=	v
 CATEGORIES=	editors
 
@@ -18,16 +18,19 @@ USE_GITHUB=	yes
 
 # Vim will try to link against libcanberra if it's installed
 CONFIGURE_ARGS=	--disable-canberra \
+		--disable-libsodium \
 		--enable-cscope \
 		--enable-gui=${GUI} \
 		--enable-multibyte \
-		--with-tlib=ncursesw
+		--with-tlib=ncursesw \
+		--without-wayland
 MAKE_ARGS=	STRIP="${STRIP_CMD}" \
 		VIMRCLOC=${ETCDIR} \
 		VIMRUNTIMEDIR=${PREFIX}/share/vim/${VIM_VER}
 
 CPE_VERSION=	${PORTVERSION:R}
 GNU_CONFIGURE=	yes
+GNU_CONFIGURE_MANPREFIX=${PREFIX}/share
 PLIST_SUB=	VIM_VER=${VIM_VER}
 PORTDATA=	${VIM_VER}
 PORTSCOUT=	ignore:1
@@ -62,15 +65,16 @@ GUI=		gtk2
 CONFIGURE_ARGS+=--enable-xim --enable-fontset
 PLIST_SUB+=	GUI="" DESKTOP=""
 USES+=		desktop-file-utils gnome xorg
-USE_GNOME=	gdkpixbuf2 gtk20
+USE_GNOME=	gdkpixbufextra gtk20
 USE_XORG=	ice sm x11 xpm xt
 
 .elif ${FLAVOR:U} == gtk3
 GUI=		gtk3
-CONFIGURE_ARGS+=--enable-xim --enable-fontset
+CONFIGURE_ARGS+=--enable-xim --enable-fontset --with-wayland
+LIB_DEPENDS+=	libwayland-client.so:graphics/wayland
 PLIST_SUB+=	GUI="" DESKTOP=""
 USES+=		desktop-file-utils gnome xorg
-USE_GNOME=	cairo gdkpixbuf2 gtk30
+USE_GNOME=	cairo gdkpixbufextra gtk30
 USE_XORG=	ice sm x11 xpm xt
 
 .elif ${FLAVOR:U} == motif
@@ -89,15 +93,21 @@ USES+=		xorg
 USE_XORG=	ice sm x11 xmu xpm xt
 .endif
 
+.if ${FLAVOR:U} != tiny
+USES+=		python:build
+CONFIGURE_ARGS+=--enable-python3interp=dynamic \
+		--with-python3-command=${PYTHON_CMD}
+.endif
+
 # Options {{{1
 # The bulk of the OPTIONS are for normal (non-tiny) vim
 ### Make sure any new options are excluded below in CONSOLE/TINY
-OPTIONS_DEFAULT=	CTAGS_BASE PYTHON XXD
+OPTIONS_DEFAULT=	CTAGS_BASE XXD
 OPTIONS_DEFINE=		MAKE_JOBS NLS XTERM_SAVE XXD
 OPTIONS_SINGLE=		CTAGS
 OPTIONS_SINGLE_CTAGS=	CTAGS_BASE CTAGS_EXUBERANT CTAGS_UNIVERSAL
 OPTIONS_GROUP=		LANGBIND
-OPTIONS_GROUP_LANGBIND=	LUA PERL PYTHON RUBY SCHEME TCL
+OPTIONS_GROUP_LANGBIND=	LUA PERL RUBY SCHEME TCL
 OPTIONS_SUB=		yes
 
 # vim-tiny excludes everything except CONSOLE, MAKE_JOBS
@@ -136,11 +146,6 @@ LUA_USES=		lua
 
 PERL_CONFIGURE_ENABLE=	perlinterp
 PERL_USES=		perl5
-
-PYTHON_USES=		python
-PYTHON_USES_OFF=	python:env
-PYTHON_CONFIGURE_ENABLE=	python3interp
-PYTHON_CONFIGURE_WITH=	python3-command=${PYTHON_CMD}
 
 RUBY_CONFIGURE_ENABLE=	rubyinterp
 RUBY_USES=		ruby
@@ -182,7 +187,7 @@ do-install:
 	${INSTALL_PROGRAM} ${WRKSRC}/src/vim ${STAGEDIR}${PREFIX}/bin
 	${INSTALL_DATA} ${WRKSRC}/runtime/defaults.vim ${STAGEDIR}${DATADIR}/${VIM_VER}
 	${INSTALL_DATA} ${FILESDIR}/defaults_freebsd.vim ${STAGEDIR}${DATADIR}/${VIM_VER}
-	${INSTALL_MAN} ${WRKSRC}/runtime/doc/vim.1 ${STAGEDIR}${MAN1PREFIX}/man/man1
+	${INSTALL_MAN} ${WRKSRC}/runtime/doc/vim.1 ${STAGEDIR}${PREFIX}/share/man/man1
 
 .else  # flavor != tiny
 post-install:

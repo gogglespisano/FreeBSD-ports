@@ -1,12 +1,13 @@
 PORTNAME=	dmenu-wayland
 PORTVERSION=	0.1
+PORTREVISION=	1
 DISTVERSIONPREFIX=	v
 CATEGORIES=	deskutils wayland
 
 PATCH_SITES=	https://github.com/nyyManni/dmenu-wayland/commit/
 PATCHFILES=	b646f4d14c627d9a4300d9d015fb8e9b5cb2abef.patch:-p1
 
-MAINTAINER=	bapt@FreeBSD.org
+MAINTAINER=	ports@FreeBSD.org
 COMMENT=	Efficient dynamic menu for wayland
 WWW=		https://github.com/nyyManni/dmenu-wayland
 
@@ -27,6 +28,6 @@ USE_GNOME=	cairo glib20 pango
 PLIST_FILES=	bin/dmenu-wl \
 		bin/dmenu-wl_path \
 		bin/dmenu-wl_run \
-		man/man1/dmenu-wl.1.gz
+		share/man/man1/dmenu-wl.1.gz
 
 .include <bsd.port.mk>

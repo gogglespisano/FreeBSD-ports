@@ -1,23 +1,23 @@
 PORTNAME=	linuxwave
 DISTVERSIONPREFIX=	v
-DISTVERSION=	0.1.5
+DISTVERSION=	0.3.0
 CATEGORIES=	audio
 
-MAINTAINER=	jbeich@FreeBSD.org
+MAINTAINER=	ports@FreeBSD.org
 COMMENT=	Generate music from the entropy of Linux
 WWW=		https://orhun.dev/linuxwave/
 
 LICENSE=	MIT
 LICENSE_FILE=	${WRKSRC}/LICENSE
 
-BUILD_DEPENDS=	zig>=0.10.0:lang/zig
+BUILD_DEPENDS=	zig>=0.14.0:lang/zig
 
 USE_GITHUB=	yes
 GH_ACCOUNT=	orhun
-GH_TUPLE=	Hejsil:zig-clap:0.6.0:zig_clap/libs/zig-clap
+GH_TUPLE=	Hejsil:zig-clap:0.10.0:zig_clap/../.cache/zig/p/clap-0.10.0-oBajB434AQBDh-Ei3YtoKIRxZacVPF1iSwp3IX_ZB8f0
 MAKE_ENV=	DESTDIR="${STAGEDIR}"
 CONFIGURE_ARGS=	--prefix "${PREFIX}" \
-		${WITH_DEBUG:D:U-Drelease-fast} \
+		${WITH_DEBUG:D:U-Doptimize=ReleaseFast} \
 		${WITH_PIE:D-Dpie} \
 		${WITH_RELRO:D-Drelro} \
 		-Dcpu=${CPUTYPE:Ubaseline} \

@@ -1,6 +1,5 @@
 PORTNAME=	logseq
-PORTVERSION=	0.9.20
-PORTREVISION=	2
+PORTVERSION=	0.10.13
 CATEGORIES=	textproc
 MASTER_SITES=	https://github.com/logseq/logseq/releases/download/${PORTVERSION}/ \
 		LOCAL/arrowd/:node_modules
@@ -15,15 +14,24 @@ WWW=		https://logseq.com
 LICENSE=	AGPLv3
 LICENSE_FILE=	${WRKSRC}/LICENSE
 
-USES=		desktop-file-utils electronfix:25 shared-mime-info zip
+DEPRECATED=	Depends on expired devel/electron34
+EXPIRATION_DATE=2025-12-01
+
+ONLY_FOR_ARCHS=	amd64
+
+RUN_DEPENDS=	git:devel/git
+
+USES=		desktop-file-utils electronfix:34 shared-mime-info zip
 
 ELECTRONFIX_MAIN_EXECUTABLE=	Logseq
 SUB_FILES=	Logseq
 NO_BUILD=	yes
 WRKSRC=		${WRKDIR}/Logseq-linux-x64
 
-RSAPI_HASH=	18bd98cfc4d084182b534c1c72a6e473a7174b45
-BETTER_SQLITE_VERSION=	9.1.1
+RSAPI_HASH=	0162b98aaec78aa991cdbca2e070816c6acd189a
+# Taken from https://github.com/search?q=repo%3Alogseq%2Flogseq%20better-sqlite&type=code
+BETTER_SQLITE_VERSION=	11.10.0
+ELECTRON_VERSION=	34.5.6
 
 post-patch:
 	${RM} ${WRKSRC}/resources/app/node_modules/@logseq/rsapi-linux-x64-gnu/package.json.orig
@@ -41,6 +49,7 @@ do-install:
 	${RM} -r ${STAGEDIR}${DATADIR}/resources/app/node_modules/better-sqlite3/bin
 	${RM} -r ${STAGEDIR}${DATADIR}/resources/app/node_modules/better-sqlite3/build/Release
 	${INSTALL_PROGRAM} ${WRKDIR}/better_sqlite3.node ${STAGEDIR}${DATADIR}/resources/app/node_modules/better-sqlite3/build
+	${RM} -r ${STAGEDIR}${DATADIR}/resources/app/node_modules/dugite/git
 
 repackage-node-modules:
 	pkg info curl git yarn npm zip > /dev/null
@@ -60,7 +69,7 @@ repackage-node-modules:
 
 	git clone https://github.com/WiseLibs/better-sqlite3.git ${WRKDIR}/better-sqlite
 	cd ${WRKDIR}/better-sqlite && git checkout v${BETTER_SQLITE_VERSION}
-	${SED} -i.bak -e 's|node-gyp rebuild|node-gyp rebuild --arch=x64 --dist-url=https://electronjs.org/headers --target=${ELECTRON_VER}|g' \
+	${SED} -i.bak -e 's|node-gyp rebuild|node-gyp rebuild --arch=x64 --dist-url=https://electronjs.org/headers --target=${ELECTRON_VERSION}|g' \
 		${WRKDIR}/better-sqlite/package.json
 	cd ${WRKDIR}/better-sqlite && ${SETENV} HOME=${WRKDIR}/home \
 		npm install --ignore-scripts

@@ -1,10 +1,10 @@
 PORTNAME=	cutils
 PORTVERSION=	1.6
-PORTREVISION=	1
+PORTREVISION=	2
 CATEGORIES=	devel
 MASTER_SITES=	http://www.sigala.it/sandro/files/
 
-MAINTAINER=	ports@FreeBSD.org
+MAINTAINER=	schaiba@gmail.com
 COMMENT=	Miscellaneous C programmer's utilities
 WWW=		http://www.sigala.it/sandro/software.php #cutils
 
@@ -12,6 +12,7 @@ LICENSE=	BSD2CLAUSE
 LICENSE_FILE=	${WRKSRC}/COPYRIGHT
 
 GNU_CONFIGURE=	yes
+GNU_CONFIGURE_MANPREFIX=${PREFIX}/share
 
 MAKE_JOBS_UNSAFE=	yes
 

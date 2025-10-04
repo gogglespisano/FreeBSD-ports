@@ -1,0 +1,5 @@
+libexec/kanidmd
+@dir %%ETCDIR%%
+@dir /var/lib
+@dir(kanidmd,kanidmd,750) /var/lib/kanidmd
+@dir(kanidmd,kanidmd,755) /var/run/kanidmd

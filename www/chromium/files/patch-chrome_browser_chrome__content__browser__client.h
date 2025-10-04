@@ -1,9 +1,9 @@
---- chrome/browser/chrome_content_browser_client.h.orig	2023-11-03 10:09:45 UTC
+--- chrome/browser/chrome_content_browser_client.h.orig	2025-09-06 10:01:20 UTC
 +++ chrome/browser/chrome_content_browser_client.h
-@@ -482,7 +482,7 @@ class ChromeContentBrowserClient : public content::Con
-   void OverridePageVisibilityState(
-       content::RenderFrameHost* render_frame_host,
-       content::PageVisibilityState* visibility_state) override;
+@@ -571,7 +571,7 @@ class ChromeContentBrowserClient : public content::Con
+       const GURL& site_url) override;
+   std::unique_ptr<content::TracingDelegate> CreateTracingDelegate() override;
+   bool IsSystemWideTracingEnabled() override;
 -#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
 +#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_BSD)
    void GetAdditionalMappedFilesForChildProcess(

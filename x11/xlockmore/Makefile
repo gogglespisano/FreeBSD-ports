@@ -1,5 +1,5 @@
 PORTNAME=	xlockmore
-PORTVERSION=	5.74
+PORTVERSION=	5.83
 CATEGORIES=	x11
 MASTER_SITES=	http://www.sillycycle.com/xlock/ \
 		SF/bsdsrc/${.CURDIR:T}
@@ -23,6 +23,7 @@ CONFIGURE_ARGS=	--without-motif --without-editres \
 		--without-gtk --without-esound --disable-setuid \
 		--disable-kerberos4 --without-ttf
 GNU_CONFIGURE=	yes
+GNU_CONFIGURE_MANPREFIX=	${PREFIX}/share
 PORTDOCS=	README ${PORTNAME}.README
 
 OPTIONS_DEFINE=	MESAGL MB SYSLOG DISABLE_ALLOW_ROOT NICE_ONLY BLANK_ONLY \
@@ -49,7 +50,7 @@ JP_DESC=	Japanese Language Support
 NO_OPTIONS_SORT=	yes
 
 MAKE_ARGS+=	bindir=${PREFIX}/bin \
-		mandir=${PREFIX}/man/man1 \
+		mandir=${PREFIX}/share/man/man1 \
 		datarootdir=${PREFIX}/share \
 		xapploaddir=${PREFIX}/lib/X11/app-defaults
 
@@ -84,7 +85,7 @@ MAGICK_LIB_DEPENDS=	libpng.so:graphics/png
 GTK2_CONFIGURE_WITH=	gtk2
 GTK2_LIB_DEPENDS=	libfontconfig.so:x11-fonts/fontconfig \
 			libpng.so:graphics/png
-GTK2_USE=	gnome=cairo,gdkpixbuf2,gtk20
+GTK2_USE=	gnome=cairo,gdkpixbuf,gtk20
 GTK2_USES=	gnome pkgconfig
 
 .include <bsd.port.options.mk>

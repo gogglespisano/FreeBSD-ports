@@ -2,9 +2,9 @@ PORTNAME=	net2ftp
 PORTVERSION=	1.4
 CATEGORIES=	ftp
 MASTER_SITES=	https://www.net2ftp.com/download/
-DISTNAME=	${PORTNAME}_v${PORTVERSION}
+DISTNAME=	net2ftp_v${PORTVERSION}
 
-MAINTAINER=	sunpoet@FreeBSD.org
+MAINTAINER=	ports@FreeBSD.org
 COMMENT=	Web-based FTP client written in PHP
 WWW=		https://www.net2ftp.com/
 

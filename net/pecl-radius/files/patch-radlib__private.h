@@ -31,3 +31,4 @@
 -
 -/* vim: set ts=8 sw=8 noet: */
 +#endif /* RADLIB_PRIVATE_H */
+

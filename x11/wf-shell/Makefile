@@ -1,9 +1,9 @@
 PORTNAME=	wf-shell
 DISTVERSIONPREFIX=	v
-DISTVERSION=	0.8.0
+DISTVERSION=	0.10.0
 CATEGORIES=	x11 wayland
 
-MAINTAINER=	jbeich@FreeBSD.org
+MAINTAINER=	ports@FreeBSD.org
 COMMENT=	GTK3-based panel for wayfire
 WWW=		https://wayfire.org/
 
@@ -47,5 +47,4 @@ post-patch:
 		${WRKSRC}/src/dock/toplevel-icon.cpp \
 		${WRKSRC}/src/panel/widgets/window-list/toplevel.cpp
 
-.include "${.CURDIR:H:H}/x11-toolkits/wlroots016/override.mk"
 .include <bsd.port.mk>

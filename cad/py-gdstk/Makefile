@@ -1,8 +1,8 @@
 PORTNAME=	gdstk
 DISTVERSIONPREFIX=	v
-DISTVERSION=	0.9.46
+DISTVERSION=	0.9.60
 CATEGORIES=	cad
-#MASTER_SITES=	PYPI # build fails from PYPI: https://github.com/heitzmann/gdspy/issues/236
+#MASTER_SITES=	PYPI # some test files are missing
 PKGNAMEPREFIX=	${PYTHON_PKGNAMEPREFIX}
 
 MAINTAINER=	yuri@FreeBSD.org
@@ -13,20 +13,23 @@ LICENSE=	BSL
 LICENSE_FILE=	${WRKSRC}/LICENSE
 
 BUILD_DEPENDS=	cmake:devel/cmake-core \
+		${PYTHON_PKGNAMEPREFIX}pyproject-metadata>0:devel/py-pyproject-metadata@${PY_FLAVOR} \
+		${PYTHON_PKGNAMEPREFIX}scikit-build-core>0:devel/py-scikit-build-core@${PY_FLAVOR} \
 		${PY_SETUPTOOLS} \
 		${PYTHON_PKGNAMEPREFIX}wheel>0:devel/py-wheel@${PY_FLAVOR} \
 		${PYNUMPY}
 LIB_DEPENDS=	libqhull_r.so:math/qhull
+RUN_DEPENDS=	${PYNUMPY}
 
-USES=		compiler:c++11-lang python
-USE_PYTHON=	pep517 autoplist pytest # tests fail to run, see https://github.com/heitzmann/gdspy/issues/237
+USES=		compiler:c++17-lang python
+USE_PYTHON=	pep517 autoplist pytest
 
 USE_GITHUB=	yes
 GH_ACCOUNT=	heitzmann
 
 TEST_ENV=	${MAKE_ENV} PYTHONPATH=${STAGEDIR}${PYTHONPREFIX_SITELIBDIR}
+TEST_WRKSRC=	${WRKSRC}/tests
 
-post-install:
-	@${STRIP_CMD} ${STAGEDIR}${PYTHON_SITELIBDIR}/gdstk/gdstk${PYTHON_EXT_SUFFIX}.so
+# tests as of 0.9.60: 87 passed in 2.37s
 
 .include <bsd.port.mk>

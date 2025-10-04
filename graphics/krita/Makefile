@@ -1,5 +1,5 @@
 PORTNAME=	krita
-DISTVERSION=	5.2.1
+DISTVERSION=	5.2.13
 CATEGORIES=	graphics kde
 MASTER_SITES=	KDE/stable/${PORTNAME}/${DISTVERSION}
 DIST_SUBDIR=	KDE/${PORTNAME}
@@ -51,7 +51,7 @@ USE_GNOME=	glib20
 USE_KDE=	completion config coreaddons crash guiaddons i18n \
 		itemmodels itemviews libkdcraw service widgetsaddons \
 		windowsystem ecm:build
-USE_QT=		concurrent core dbus declarative gui network \
+USE_QT=		concurrent core dbus gui network \
 		printsupport sql svg widgets x11extras xml \
 		buildtools:build qmake:build testlib:build \
 		sql-sqlite3:run
@@ -74,7 +74,7 @@ OPENEXR_CMAKE_BOOL_OFF=	CMAKE_DISABLE_FIND_PACKAGE_OpenEXR
 
 PYTHON_BUILD_DEPENDS=	${PY_SETUPTOOLS}
 PYTHON_USES=		pyqt:5
-PYTHON_USE=		PYQT=pyqt5,sip,pysip
+PYTHON_USE=		PYQT=pyqt5,pysip,sip:build
 PYTHON_CMAKE_BOOL_OFF=	CMAKE_DISABLE_FIND_PACKAGE_PyQt5
 
 .include <bsd.port.mk>

@@ -1,6 +1,6 @@
 PORTNAME=	texmacs
 PORTVERSION=	1.99.4
-PORTREVISION=	7
+PORTREVISION=	11
 CATEGORIES=	editors print
 MASTER_SITES=	http://www.texmacs.org/Download/ftp/tmftp/source/
 DISTNAME=	TeXmacs-${PORTVERSION}-src
@@ -12,8 +12,7 @@ WWW=		https://www.texmacs.org/
 LICENSE=	GPLv3
 LICENSE_FILE=	${WRKSRC}/LICENSE
 
-BROKEN_armv6=		fails to compile: call to min is ambiguous
-BROKEN_armv7=		fails to compile: call to min is ambiguous
+BROKEN_FreeBSD_13=	Kernel/Containers/hashtree.cpp:97:14: error: no member named 'contains' in 'hashtree<K, V>'
 
 RUN_DEPENDS=	fig2dev:print/transfig
 
@@ -32,6 +31,7 @@ SHEBANG_FILES=	plugins/asymptote/bin/* plugins/dratex/bin/* \
 		plugins/mathematica/bin/realpath.py
 
 GNU_CONFIGURE=	yes
+GNU_CONFIGURE_MANPREFIX=${PREFIX}/share
 CONFIGURE_ARGS=	--enable-optimize="${CXXFLAGS}" --disable-qt
 
 MAKE_ARGS=	CP="${CP} -R -f"

@@ -1,5 +1,6 @@
 PORTNAME=	zstandard
-DISTVERSION=	0.22.0
+DISTVERSION=	0.23.0
+PORTREVISION=	1
 CATEGORIES=	archivers python
 MASTER_SITES=	PYPI
 PKGNAMEPREFIX=	${PYTHON_PKGNAMEPREFIX}
@@ -9,8 +10,6 @@ COMMENT=	Zstandard bindings for Python, a full-featured version
 WWW=		https://github.com/indygreg/python-zstandard
 
 LICENSE=	BSD2CLAUSE
-
-BROKEN_FreeBSD_12_powerpc64=	fails to build: cffi.error.CDefError: parse error
 
 BUILD_DEPENDS=	${PYTHON_PKGNAMEPREFIX}cffi>=1.8.0:devel/py-cffi@${PY_FLAVOR}
 #LIB_DEPENDS=	libzstd.so:archivers/zstd

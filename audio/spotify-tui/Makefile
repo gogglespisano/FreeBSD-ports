@@ -1,7 +1,7 @@
 PORTNAME=	spotify-tui
 DISTVERSIONPREFIX=	v
 DISTVERSION=	0.25.0
-PORTREVISION=	22
+PORTREVISION=	38
 CATEGORIES=	audio
 
 MAINTAINER=	lcook@FreeBSD.org
@@ -10,6 +10,9 @@ WWW=		https://github.com/Rigellute/spotify-tui
 
 LICENSE=	MIT
 LICENSE_FILE=	${WRKSRC}/LICENSE
+
+DEPRECATED=	dead upstream and doesn't build
+EXPIRATION_DATE=2025-09-30
 
 USES=		cargo localbase:ldflags python:build ssl xorg
 USE_GITHUB=	yes
@@ -294,9 +297,6 @@ SPOTIFYD_RUN_DEPENDS=	spotifyd:audio/spotifyd
 BROKEN_SSL=	base openssl openssl31
 BROKEN_SSL_REASON=	Fails to detect OpenSSL 3.0.0 and later
 .endif
-
-post-install:
-	${STRIP_CMD} ${STAGEDIR}${PREFIX}/bin/spt
 
 post-install-DOCS-on:
 	@${MKDIR} ${STAGEDIR}${DOCSDIR}

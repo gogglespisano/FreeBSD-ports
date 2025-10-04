@@ -1,6 +1,6 @@
---- content/browser/devtools/devtools_frontend_host_impl.cc.orig	2023-11-22 14:00:11 UTC
+--- content/browser/devtools/devtools_frontend_host_impl.cc.orig	2025-09-11 13:19:19 UTC
 +++ content/browser/devtools/devtools_frontend_host_impl.cc
-@@ -22,7 +22,7 @@
+@@ -25,7 +25,7 @@
  #include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
  #include "ui/base/webui/resource_path.h"
  

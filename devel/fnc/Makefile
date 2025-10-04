@@ -1,5 +1,5 @@
 PORTNAME=	fnc
-DISTVERSION=	0.16
+DISTVERSION=	0.18
 CATEGORIES=	devel
 MASTER_SITES=	https://fnc.bsdbox.org/tarball/${DISTVERSION}/ \
 		https://distfiles.pirateparty.in/ashish/
@@ -15,7 +15,7 @@ USES=		ncurses
 MAKE_JOBS_UNSAFE=	yes
 
 PLIST_FILES=	bin/fnc \
-		man/man1/fnc.1.gz
+		share/man/man1/fnc.1.gz
 
 # For patch application
 post-extract:

@@ -1,13 +1,13 @@
---- chrome/browser/themes/theme_service.cc.orig	2023-11-04 07:08:51 UTC
+--- chrome/browser/themes/theme_service.cc.orig	2025-09-10 13:22:16 UTC
 +++ chrome/browser/themes/theme_service.cc
-@@ -75,7 +75,7 @@
+@@ -72,7 +72,7 @@
  #include "extensions/browser/extension_registry_observer.h"
  #endif
  
 -#if BUILDFLAG(IS_LINUX)
 +#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_BSD)
  #include "ui/linux/linux_ui.h"
- #include "ui/ozone/public/ozone_platform.h"
+ #include "ui/ozone/public/ozone_platform.h"  // nogncheck
  #endif
 @@ -331,7 +331,7 @@ CustomThemeSupplier* ThemeService::GetThemeSupplier() 
  }

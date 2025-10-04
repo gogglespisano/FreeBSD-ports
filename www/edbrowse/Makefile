@@ -1,8 +1,7 @@
 PORTNAME=	edbrowse
 DISTVERSIONPREFIX=	v
-DISTVERSION=	3.8.7
-PORTREVISION=	1
-CATEGORIES=	www editors
+DISTVERSION=	3.8.10
+CATEGORIES=	www editors accessibility
 
 MAINTAINER=	alfix86@gmail.com
 COMMENT=	Line-oriented web browser and text editor
@@ -12,34 +11,28 @@ LICENSE=	GPLv2
 LICENSE_FILE=	${WRKSRC}/COPYING
 
 LIB_DEPENDS=	libcurl.so:ftp/curl \
-		libquickjs.so:lang/quickjs \
 		libodbc.so:databases/unixODBC \
-		libpcre2-8.so:devel/pcre2
+		libpcre2-8.so:devel/pcre2 \
+		libquickjs.so:lang/quickjs
 
 USES=		compiler:c11 gmake perl5 pkgconfig readline ssl
-USE_PERL5=	build
 USE_GITHUB=	yes
+GH_ACCOUNT=	CMB
+USE_PERL5=	build
 
 MAKEFILE=	makefile
-
-GH_ACCOUNT=	CMB
+MAKE_ARGS=	QUICKJS_INCLUDE=${LOCALBASE}/include/quickjs \
+		QUICKJS_LIB=${LOCALBASE}/lib
 
 PLIST_FILES=	bin/${PORTNAME} \
-		man/man1/${PORTNAME}.1.gz
+		share/man/man1/${PORTNAME}.1.gz
 
 PORTDOCS=	*
 
 OPTIONS_DEFINE=	DOCS
 
-.include <bsd.port.options.mk>
-
-# Skip openssl.pc while using OpenSSL from base system on older FreeBSD versions which does not skip this file
-.if ${SSL_DEFAULT} == base && !exists(/usr/libdata/pkgconfig/openssl.pc)
-EXTRA_PATCHES+=	${PATCHDIR}/extra-patch-openssl
-.endif
-
 do-install:
-	${INSTALL_MAN} ${WRKSRC}/doc/man-edbrowse-freebsd.1 ${STAGEDIR}${MAN1PREFIX}/man/man1/${PORTNAME}.1
+	${INSTALL_MAN} ${WRKSRC}/doc/man-edbrowse-freebsd.1 ${STAGEDIR}${PREFIX}/share/man/man1/${PORTNAME}.1
 	${INSTALL_PROGRAM} ${WRKSRC}/src/edbrowse ${STAGEDIR}${PREFIX}/bin
 
 post-install-DOCS-on:

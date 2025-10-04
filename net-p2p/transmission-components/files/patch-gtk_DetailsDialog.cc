@@ -1,10 +1,10 @@
---- gtk/DetailsDialog.cc.orig	2023-07-05 18:51:40 UTC
+--- gtk/DetailsDialog.cc.orig	2025-08-09 13:07:00 UTC
 +++ gtk/DetailsDialog.cc
-@@ -68,6 +68,7 @@
- #include <ws2tcpip.h>
- #else
- #include <arpa/inet.h>
-+#include <sys/socket.h>
- #endif
+@@ -49,6 +49,7 @@
  
- using namespace std::literals;
+ #include <fmt/chrono.h>
+ #include <fmt/core.h>
++#include <fmt/ranges.h>
+ #include <fmt/format.h>
+ 
+ #include <algorithm>

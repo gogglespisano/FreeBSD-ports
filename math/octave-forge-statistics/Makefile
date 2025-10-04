@@ -1,6 +1,6 @@
 PORTNAME=	octave-forge-statistics
 DISTVERSIONPREFIX=	release-
-DISTVERSION=	1.6.0
+DISTVERSION=	1.7.5
 CATEGORIES=	math
 
 MAINTAINER=	stephen@FreeBSD.org
@@ -14,8 +14,6 @@ USES=		octave
 USE_GITHUB=	yes
 GH_ACCOUNT=	gnu-octave
 GH_PROJECT=	statistics
-
-NO_ARCH=	yes
 
 OCTAVE_SRC=	${GH_PROJECT}-release-${DISTVERSION}
 
